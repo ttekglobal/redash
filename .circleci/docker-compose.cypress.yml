@@ -1,4 +1,4 @@
-version: '2.2'
+version: "2.2"
 services:
   server:
     build: ../
@@ -15,6 +15,7 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_RATELIMIT_ENABLED: "false"
       REDASH_ENFORCE_CSRF: "true"
+      NODE_ENV: "test"
   scheduler:
     build: ../
     command: scheduler
@@ -22,6 +23,7 @@ services:
       - server
     environment:
       REDASH_REDIS_URL: "redis://redis:6379/0"
+      NODE_ENV: "test"
   worker:
     build: ../
     command: worker
@@ -32,6 +34,7 @@ services:
       REDASH_LOG_LEVEL: "INFO"
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+      NODE_ENV: "test"
   cypress:
     build:
       context: ../
