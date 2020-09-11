@@ -1,6 +1,14 @@
 import { isArray, isObject, isString, isFunction, startsWith, reduce, merge, map, each } from "lodash";
 import resizeObserver from "@/services/resizeObserver";
-import { Plotly, prepareData, prepareLayout, updateData, updateYRanges, updateChartSize } from "../plotly";
+import {
+  Plotly,
+  prepareData,
+  prepareLayout,
+  updateData,
+  updateYRanges,
+  updateChartSize,
+  updateAxesInversion,
+} from "../plotly";
 
 function createErrorHandler(errorHandler) {
   return error => {
@@ -48,7 +56,9 @@ function initPlotUpdater() {
   return updater;
 }
 
-export default function initChart(container, options, data, additionalOptions, onError) {
+export default function initChart(container, options, data, additionalOptions, visualization, onSuccess, onError) {
+  // console.log(visualization, onSuccess);
+
   const handleError = createErrorHandler(onError);
 
   const plotlyOptions = {
@@ -82,14 +92,107 @@ export default function initChart(container, options, data, additionalOptions, o
   let unwatchResize = () => {};
 
   const promise = Promise.resolve()
-    .then(() => Plotly.newPlot(container, plotlyData, plotlyLayout, plotlyOptions))
+    .then(() => {
+      plotlyLayout.paper_bgcolor = "#1e1e1e";
+      plotlyLayout.plot_bgcolor = "#1e1e1e";
+
+      if (options.globalSeriesType !== "pie") {
+        plotlyLayout.xaxis.color = "#ffffffbf";
+        plotlyLayout.xaxis.zerolinecolor = "rgba(255, 255, 255, 0.12)";
+        // plotlyLayout.xaxis.linecolor = "rgba(255, 255, 255, 0.12)";
+        // plotlyLayout.xaxis.gridcolor = "rgba(255, 255, 255, 0.12)";
+        plotlyLayout.yaxis.color = "#ffffffbf";
+        plotlyLayout.yaxis.zerolinecolor = "rgba(255, 255, 255, 0.12)";
+        // plotlyLayout.yaxis.linecolor = "rgba(255, 255, 255, 0.12)";
+        // plotlyLayout.yaxis.gridcolor = "rgba(255, 255, 255, 0.12)";
+
+        // if (options.globalSeriesType !== "bar") {
+        //   plotlyLayout.yaxis.showgrid = true;
+        //   plotlyLayout.xaxis.showgrid = false;
+        // } else {
+        //   plotlyLayout.xaxis.showgrid = true;
+        //   plotlyLayout.yaxis.showgrid = false;
+        // }
+      }
+      // console.log(plotlyLayout);
+
+      plotlyLayout.legend = {
+        bgcolor: "transparent",
+        font: {
+          color: "#ffffffbf",
+        },
+      };
+
+      Plotly.newPlot(container, plotlyData, plotlyLayout, plotlyOptions);
+    })
     .then(
       createSafeFunction(() =>
         updater
           .append(updateYRanges(container, plotlyLayout, options))
+          .append(updateAxesInversion(plotlyData, plotlyLayout, options))
           .append(updateChartSize(container, plotlyLayout, options))
           .process(container)
       )
+    )
+    .then(
+      createSafeFunction(() => {
+        container.on("plotly_afterplot", function() {
+          if (onSuccess) {
+            onSuccess(true);
+          }
+        });
+      })
+    )
+    .then(
+      createSafeFunction(() => {
+        container.on("plotly_click", function(data) {
+          if (visualization.subDashboard) {
+            const parameters = visualization.query.options.parameters;
+            let q = "";
+            if (parameters.length) {
+              for (let i = 0, len = parameters.length; i < len; i++) {
+                const value = `${parameters[i].urlPrefix}${parameters[i].name}=${parameters[i].value}`;
+                q += value;
+              }
+              // console.log(q);
+            }
+
+            const keys = Object.keys(options.columnMapping);
+            const axisMapping = {};
+            for (let i = 0, len = keys.length; i < len; i++) {
+              axisMapping[options.columnMapping[keys[i]]] = keys[i];
+            }
+            // console.log(axisMapping);
+            localStorage.removeItem("b_dashboard");
+            localStorage.removeItem("p_widget");
+            localStorage.setItem(
+              "b_dashboard",
+              JSON.stringify({
+                link: location.href,
+                pathname: `/dashboards/${visualization.subDashboard}`,
+                parentName: visualization.query.name,
+              })
+            );
+            localStorage.setItem(
+              "p_widget",
+              JSON.stringify({
+                id: visualization.widgetId,
+                name: visualization.query.name,
+              })
+            );
+            let link = `${window.location.origin}/dashboards/${visualization.subDashboard}?p_${axisMapping.x}=${
+              options.invertedAxes ? data.points[0].y : data.points[0].x
+            }`;
+
+            if (q) {
+              link = `${link}&${q}`;
+            }
+
+            window.location.href = link;
+            // window.open(link, "_blank").focus();
+          }
+        });
+      })
     )
     .then(
       createSafeFunction(() => {
@@ -100,7 +203,10 @@ export default function initChart(container, options, data, additionalOptions, o
             // We need to catch only changes of traces visibility to update stacking
             if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
               updateData(plotlyData, options);
-              updater.append(updateYRanges(container, plotlyLayout, options)).process(container);
+              updater
+                .append(updateYRanges(container, plotlyLayout, options))
+                .append(updateAxesInversion(plotlyData, plotlyLayout, options))
+                .process(container);
             }
           })
         );
