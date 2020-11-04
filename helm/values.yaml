@@ -413,47 +413,47 @@ externalPostgreSQL: postgres://doadmin:ylwv8e1g2vhamzoo@vts-dev-do-user-4247043-
 # postgresql://doadmin:ylwv8e1g2vhamzoo@vts-dev-do-user-4247043-0.a.db.ondigitalocean.com:25060/report?ssl=true
 
 ## Configuration values for the postgresql dependency. This PostgreSQL instance is used by default for all Redash state storage [ref](https://github.com/kubernetes/charts/blob/master/stable/postgresql/README.md)
-postgresql:
-  # postgresql.enabled -- Whether to deploy a PostgreSQL server to satisfy the applications database requirements. To use an external PostgreSQL set this to false and configure the externalPostgreSQL parameter.
-  enabled: false
-  image:
-    # postgresql.image.tag -- Bitnami supported version close to the one specified in Redash [setup docker-compose.yml](https://github.com/getredash/setup/blob/master/data/docker-compose.yml)
-    tag: "9.6.17-debian-10-r3"
-  # postgresql.postgresqlUsername -- PostgreSQL username for redash user (when postgresql chart enabled)
-  postgresqlUsername: postgres
-  # postgresql.postgresqlPassword -- REQUIRED: PostgreSQL password for redash user (when postgresql chart enabled)
-  postgresqlPassword: RmE67lxPRqjYxY6HvZMF8D8S6PB2VoArOuQc5y74we0=
-  # postgresql.postgresqlDatabase -- PostgreSQL database name (when postgresql chart enabled)
-  postgresqlDatabase: postgres
-  service:
-    type: ClusterIP
-    port: 5432
-  persistence:
-    # postgresql.persistence.enabled -- Use a PVC to persist PostgreSQL data (when postgresql chart enabled)
-    enabled: true
-    # postgresql.persistence.storageClass - Storage Class for PostgreSQL backing PVC. If undefined (the default) or set to null, no storageClassName spec is set, choosing the default provisioner.  (gp2 on AWS, standard on GKE, AWS & OpenStack).
-    storageClass: ""
-    # postgresql.persistence.accessMode -- Use PostgreSQL volume as ReadOnly or ReadWrite
-    accessMode: ReadWriteOnce
-    # postgresql.persistence.size -- PVC Storage Request size for PostgreSQL volume
-    size: 10Gi
-    # postgresql.persistence.existingClaim -- Provide an existing PostgreSQL PersistentVolumeClaim
-    # existingClaim: ""
+# postgresql:
+#   # postgresql.enabled -- Whether to deploy a PostgreSQL server to satisfy the applications database requirements. To use an external PostgreSQL set this to false and configure the externalPostgreSQL parameter.
+#   enabled: false
+#   image:
+#     # postgresql.image.tag -- Bitnami supported version close to the one specified in Redash [setup docker-compose.yml](https://github.com/getredash/setup/blob/master/data/docker-compose.yml)
+#     tag: "9.6.17-debian-10-r3"
+#   # postgresql.postgresqlUsername -- PostgreSQL username for redash user (when postgresql chart enabled)
+#   postgresqlUsername: postgres
+#   # postgresql.postgresqlPassword -- REQUIRED: PostgreSQL password for redash user (when postgresql chart enabled)
+#   postgresqlPassword: RmE67lxPRqjYxY6HvZMF8D8S6PB2VoArOuQc5y74we0=
+#   # postgresql.postgresqlDatabase -- PostgreSQL database name (when postgresql chart enabled)
+#   postgresqlDatabase: postgres
+#   service:
+#     type: ClusterIP
+#     port: 5432
+#   persistence:
+#     # postgresql.persistence.enabled -- Use a PVC to persist PostgreSQL data (when postgresql chart enabled)
+#     enabled: true
+#     # postgresql.persistence.storageClass - Storage Class for PostgreSQL backing PVC. If undefined (the default) or set to null, no storageClassName spec is set, choosing the default provisioner.  (gp2 on AWS, standard on GKE, AWS & OpenStack).
+#     storageClass: ""
+#     # postgresql.persistence.accessMode -- Use PostgreSQL volume as ReadOnly or ReadWrite
+#     accessMode: ReadWriteOnce
+#     # postgresql.persistence.size -- PVC Storage Request size for PostgreSQL volume
+#     size: 10Gi
+#     # postgresql.persistence.existingClaim -- Provide an existing PostgreSQL PersistentVolumeClaim
+#     # existingClaim: ""
 
 # externalRedis -- External Redis configuration. To use an external Redis instead of the automatically deployed redis chart: set redis.enabled to false then uncomment and configure the externalRedis connection URL.
 # externalRedis: redis://user:pass@host:6379/database
 
 ## Configuration values for the redis dependency. This Redis instance is used by default for caching and temporary storage [ref](https://github.com/kubernetes/charts/blob/master/stable/redis/README.md)
-redis:
-  # redis.enabled -- Whether to deploy a Redis server to satisfy the applications database requirements. To use an external Redis set this to false and configure the externalRedis parameter.
-  enabled: true
-  # redis.password -- If the password is not specified, a random password will be generated (when redis chart enabled)
-  # password:
-  # redis.databaseNumber -- Redis database number to use (when redis chart enabled)
-  databaseNumber: 0
-  master:
-    # redis.master.port -- Redis master port to use (when redis chart enabled)
-    port: 6379
-  cluster:
-    # redis.databaseNumber -- Enable Redis clustering (when redis chart enabled)
-    enabled: false
+# redis:
+#   # redis.enabled -- Whether to deploy a Redis server to satisfy the applications database requirements. To use an external Redis set this to false and configure the externalRedis parameter.
+#   enabled: true
+#   # redis.password -- If the password is not specified, a random password will be generated (when redis chart enabled)
+#   # password:
+#   # redis.databaseNumber -- Redis database number to use (when redis chart enabled)
+#   databaseNumber: 0
+#   master:
+#     # redis.master.port -- Redis master port to use (when redis chart enabled)
+#     port: 6379
+#   cluster:
+#     # redis.databaseNumber -- Enable Redis clustering (when redis chart enabled)
+#     enabled: false
