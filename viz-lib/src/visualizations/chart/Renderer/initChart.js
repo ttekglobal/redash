@@ -79,7 +79,7 @@ export default function initChart(container, options, data, additionalOptions, v
 
   const plotlyData = isGrouped(options.columnMapping) ? prepareGroupedData(data, options) : prepareData(data, options);
   let plotlyLayout = prepareLayout(container, options, plotlyData);
-  if (isGrouped(options.columnMapping)) {
+  if (isGrouped(options.columnMapping) && data.length) {
     plotlyLayout = prepareGroupedLayout(plotlyLayout, data);
   }
 
