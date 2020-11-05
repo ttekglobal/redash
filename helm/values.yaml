@@ -412,7 +412,7 @@ scheduledWorker:
 externalPostgreSQL: postgres://doadmin:ylwv8e1g2vhamzoo@vts-dev-do-user-4247043-0.a.db.ondigitalocean.com:25060/report?sslmode=require
 # postgresql://doadmin:ylwv8e1g2vhamzoo@vts-dev-do-user-4247043-0.a.db.ondigitalocean.com:25060/report?ssl=true
 
-## Configuration values for the postgresql dependency. This PostgreSQL instance is used by default for all Redash state storage [ref](https://github.com/kubernetes/charts/blob/master/stable/postgresql/README.md)
+# Configuration values for the postgresql dependency. This PostgreSQL instance is used by default for all Redash state storage [ref](https://github.com/kubernetes/charts/blob/master/stable/postgresql/README.md)
 # postgresql:
 #   # postgresql.enabled -- Whether to deploy a PostgreSQL server to satisfy the applications database requirements. To use an external PostgreSQL set this to false and configure the externalPostgreSQL parameter.
 #   enabled: false
@@ -440,20 +440,20 @@ externalPostgreSQL: postgres://doadmin:ylwv8e1g2vhamzoo@vts-dev-do-user-4247043-
 #     # postgresql.persistence.existingClaim -- Provide an existing PostgreSQL PersistentVolumeClaim
 #     # existingClaim: ""
 
-# externalRedis -- External Redis configuration. To use an external Redis instead of the automatically deployed redis chart: set redis.enabled to false then uncomment and configure the externalRedis connection URL.
-# externalRedis: redis://user:pass@host:6379/database
+externalRedis -- External Redis configuration. To use an external Redis instead of the automatically deployed redis chart: set redis.enabled to false then uncomment and configure the externalRedis connection URL.
+externalRedis: redis://user:pass@host:6379/database
 
-## Configuration values for the redis dependency. This Redis instance is used by default for caching and temporary storage [ref](https://github.com/kubernetes/charts/blob/master/stable/redis/README.md)
-# redis:
-#   # redis.enabled -- Whether to deploy a Redis server to satisfy the applications database requirements. To use an external Redis set this to false and configure the externalRedis parameter.
-#   enabled: true
-#   # redis.password -- If the password is not specified, a random password will be generated (when redis chart enabled)
-#   # password:
-#   # redis.databaseNumber -- Redis database number to use (when redis chart enabled)
-#   databaseNumber: 0
-#   master:
-#     # redis.master.port -- Redis master port to use (when redis chart enabled)
-#     port: 6379
-#   cluster:
-#     # redis.databaseNumber -- Enable Redis clustering (when redis chart enabled)
-#     enabled: false
+# Configuration values for the redis dependency. This Redis instance is used by default for caching and temporary storage [ref](https://github.com/kubernetes/charts/blob/master/stable/redis/README.md)
+redis:
+  # redis.enabled -- Whether to deploy a Redis server to satisfy the applications database requirements. To use an external Redis set this to false and configure the externalRedis parameter.
+  enabled: true
+  # redis.password -- If the password is not specified, a random password will be generated (when redis chart enabled)
+  # password:
+  # redis.databaseNumber -- Redis database number to use (when redis chart enabled)
+  databaseNumber: 0
+  master:
+    # redis.master.port -- Redis master port to use (when redis chart enabled)
+    port: 6379
+  cluster:
+    # redis.databaseNumber -- Enable Redis clustering (when redis chart enabled)
+    enabled: false
