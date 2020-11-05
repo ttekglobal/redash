@@ -5,6 +5,31 @@ on:
     branches: "tinrpt"
 
 jobs:
+  buidl-redash:
+    name: Setup, Build, Publish Redash images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # - name: Define variables
+      #   run: |
+      #     export GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | awk '{print substr($0,0,7)}')
+      #     echo "::set-env name=IMAGE_VERSION::$GITHUB_SHA_SHORT"
+
+      # - uses: azure/docker-login@v1
+      #   with:
+      #     login-server: docker.pkg.github.com
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Build Redash image
+      #   run: |
+      #     # cd packages/redash/
+      #     docker build --tag docker.pkg.github.com/ttekglobal/redash/ttekredash:dev-$IMAGE_VERSION .
+
+      # - name: Push Redash image
+      #   run: docker push docker.pkg.github.com/ttekglobal/redash/ttekredash:dev-$IMAGE_VERSION
   deploy-k8s:
     name: "Deployment"
     runs-on: ubuntu-latest
