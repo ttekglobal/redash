@@ -143,7 +143,7 @@ export default function initChart(container, options, data, additionalOptions, v
     .then(
       createSafeFunction(() => {
         container.on("plotly_click", function(data) {
-          if (visualization.subDashboard) {
+          if (visualization && visualization.subDashboard) {
             const parameters = visualization.query.options.parameters;
             let q = "";
             if (parameters.length) {

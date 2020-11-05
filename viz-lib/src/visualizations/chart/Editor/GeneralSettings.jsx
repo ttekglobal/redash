@@ -16,7 +16,7 @@ function getAvailableColumnMappingTypes(options) {
     result.push("series");
   }
 
-  if (options.globalSeriesType === "column" && options.invertedAxes === false) {
+  if (options.globalSeriesType === "column" && !options.invertedAxes) {
     result.push("group");
   }
 
