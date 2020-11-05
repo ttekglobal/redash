@@ -441,19 +441,19 @@ externalPostgreSQL: postgres://doadmin:ylwv8e1g2vhamzoo@vts-dev-do-user-4247043-
 #     # existingClaim: ""
 
 externalRedis -- External Redis configuration. To use an external Redis instead of the automatically deployed redis chart: set redis.enabled to false then uncomment and configure the externalRedis connection URL.
-externalRedis: redis://user:pass@host:6379/database
+externalRedis: redis://redis-master.ra.svc.cluster.local:6379/database
 
 # Configuration values for the redis dependency. This Redis instance is used by default for caching and temporary storage [ref](https://github.com/kubernetes/charts/blob/master/stable/redis/README.md)
-redis:
-  # redis.enabled -- Whether to deploy a Redis server to satisfy the applications database requirements. To use an external Redis set this to false and configure the externalRedis parameter.
-  enabled: true
-  # redis.password -- If the password is not specified, a random password will be generated (when redis chart enabled)
-  # password:
-  # redis.databaseNumber -- Redis database number to use (when redis chart enabled)
-  databaseNumber: 0
-  master:
-    # redis.master.port -- Redis master port to use (when redis chart enabled)
-    port: 6379
-  cluster:
-    # redis.databaseNumber -- Enable Redis clustering (when redis chart enabled)
-    enabled: false
+# redis:
+#   # redis.enabled -- Whether to deploy a Redis server to satisfy the applications database requirements. To use an external Redis set this to false and configure the externalRedis parameter.
+#   enabled: true
+#   # redis.password -- If the password is not specified, a random password will be generated (when redis chart enabled)
+#   # password:
+#   # redis.databaseNumber -- Redis database number to use (when redis chart enabled)
+#   databaseNumber: 0
+#   master:
+#     # redis.master.port -- Redis master port to use (when redis chart enabled)
+#     port: 6379
+#   cluster:
+#     # redis.databaseNumber -- Enable Redis clustering (when redis chart enabled)
+#     enabled: false
