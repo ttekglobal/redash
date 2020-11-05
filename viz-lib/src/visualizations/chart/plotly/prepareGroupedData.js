@@ -18,7 +18,6 @@ function getKeyByValue(object, value) {
 }
 
 export default function prepareGroupedData(seriesList, options) {
-
   const { columnMapping } = options;
   const groupBy = getKeyByValue(columnMapping, "series");
   const splitBy = getKeyByValue(columnMapping, "group");
