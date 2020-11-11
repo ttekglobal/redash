@@ -24,7 +24,7 @@ export default function prepareGroupedData(seriesList, options) {
   const x = getKeyByValue(columnMapping, "x");
   const y = getKeyByValue(columnMapping, "y");
 
-  // console.log(groupBy, splitBy);
+  console.log(x, y, splitBy, groupBy);
 
   const categories = uniq(flatten(seriesList.map(series => series.data.map(item => item.x))));
   // console.log(categories);
@@ -32,6 +32,7 @@ export default function prepareGroupedData(seriesList, options) {
   for (let i = 0; i < seriesList.length; i++) {
     for (let j = 0; j < seriesList[i].data.length; j++) {
       const item = seriesList[i].data[j].$raw;
+      // console.log(item);
       const plotlyItem = {
         x: [item[splitBy]],
         y: [item[y]],
@@ -39,6 +40,10 @@ export default function prepareGroupedData(seriesList, options) {
         name: item[groupBy],
         xaxis: `x${categories.indexOf(item[x]) + 1}`,
         barmode: "stack",
+        xaxisMapping: {
+          key: x,
+          value: item[x],
+        },
         marker: { color: stringToColour(md5(item[groupBy])) },
       };
 
