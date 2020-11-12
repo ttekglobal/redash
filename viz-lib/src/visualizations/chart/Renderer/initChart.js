@@ -160,7 +160,6 @@ export default function initChart(container, options, data, additionalOptions, v
               // console.log(q);
             }
 
-            console.log(parameters, options, data);
 
             const keys = Object.keys(options.columnMapping);
             const axisMapping = {};
