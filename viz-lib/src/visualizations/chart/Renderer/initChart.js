@@ -160,6 +160,7 @@ export default function initChart(container, options, data, additionalOptions, v
               // console.log(q);
             }
 
+
             const keys = Object.keys(options.columnMapping);
             const axisMapping = {};
             for (let i = 0, len = keys.length; i < len; i++) {
@@ -183,16 +184,23 @@ export default function initChart(container, options, data, additionalOptions, v
                 name: visualization.query.name,
               })
             );
-            let link = `${window.location.origin}/dashboards/${visualization.subDashboard}?p_${axisMapping.x}=${
-              options.invertedAxes ? data.points[0].y : data.points[0].x
-            }`;
+
+            let link = "";
+
+            if (Object.values(options.columnMapping).indexOf("group") > -1) {
+              link = `${window.location.origin}/dashboards/${visualization.subDashboard}?p_${data.points[0].data.xaxisMapping.key}=${data.points[0].data.xaxisMapping.value}`;
+            } else {
+              link = `${window.location.origin}/dashboards/${visualization.subDashboard}?p_${axisMapping.x}=${
+                options.invertedAxes ? data.points[0].y : data.points[0].x
+              }`;
+            }
 
             if (q) {
               link = `${link}&${q}`;
             }
 
-            window.location.href = link;
-            // window.open(link, "_blank").focus();
+            // window.location.href = link;
+            window.open(link, "_blank").focus();
           }
         });
       })
