@@ -208,27 +208,30 @@ export default function initChart(container, options, data, additionalOptions, v
     )
     .then(
       createSafeFunction(() => {
-        container.on(
-          "plotly_restyle",
-          createSafeFunction(updates => {
-            // This event is triggered if some plotly data/layout has changed.
-            // We need to catch only changes of traces visibility to update stacking
-            if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
-              updateData(plotlyData, options);
-              updater
-                .append(updateYRanges(container, plotlyLayout, options))
-                .append(updateAxesInversion(plotlyData, plotlyLayout, options))
-                .process(container);
-            }
-          })
-        );
+        if (!isGrouped(options.columnMapping)) {
+          container.on(
+            "plotly_restyle",
+            createSafeFunction(updates => {
+              // console.log("legend click", plotlyData, updates);
+              // This event is triggered if some plotly data/layout has changed.
+              // We need to catch only changes of traces visibility to update stacking
+              if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
+                updateData(plotlyData, options);
+                updater
+                  .append(updateYRanges(container, plotlyLayout, options))
+                  .append(updateAxesInversion(plotlyData, plotlyLayout, options))
+                  .process(container);
+              }
+            })
+          );
 
-        unwatchResize = resizeObserver(
-          container,
-          createSafeFunction(() => {
-            updater.append(updateChartSize(container, plotlyLayout, options)).process(container);
-          })
-        );
+          unwatchResize = resizeObserver(
+            container,
+            createSafeFunction(() => {
+              updater.append(updateChartSize(container, plotlyLayout, options)).process(container);
+            })
+          );
+        }
       })
     )
     .catch(handleError);
