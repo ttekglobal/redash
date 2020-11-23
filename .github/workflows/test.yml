@@ -41,7 +41,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup kubectl
-        uses: matootie/dokube@v1.3.1
+        uses: matootie/dokube@v1.3.4
         with:
           personalAccessToken:  ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: ttek
