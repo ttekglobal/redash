@@ -49,6 +49,8 @@ jobs:
           namespace: vts-dev
 
       - name: Define variables
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         run: |
           export GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | awk '{print substr($0,0,7)}')
           echo "::set-env name=IMAGE_VERSION::$GITHUB_SHA_SHORT"
