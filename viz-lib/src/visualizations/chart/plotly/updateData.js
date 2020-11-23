@@ -225,5 +225,7 @@ export default function updateData(seriesList, options) {
         break;
     }
   }
+
+  // console.log("seriesList", seriesList);
   return seriesList;
 }

@@ -24,6 +24,7 @@ export default function prepareGroupedData(seriesList, options) {
   const x = getKeyByValue(columnMapping, "x");
   const y = getKeyByValue(columnMapping, "y");
 
+  // console.log(x, y, splitBy, groupBy);
 
   const categories = uniq(flatten(seriesList.map(series => series.data.map(item => item.x))));
   // console.log(categories);
