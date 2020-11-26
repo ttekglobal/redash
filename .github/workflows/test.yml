@@ -13,6 +13,8 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Define variables
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         run: |
           export GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | awk '{print substr($0,0,7)}')
           echo "::set-env name=IMAGE_VERSION::$GITHUB_SHA_SHORT"
@@ -39,7 +41,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup kubectl
-        uses: matootie/dokube@v1.3.1
+        uses: matootie/dokube@v1.3.4
         with:
           personalAccessToken:  ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: ttek
@@ -47,6 +49,8 @@ jobs:
           namespace: vts-dev
 
       - name: Define variables
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         run: |
           export GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | awk '{print substr($0,0,7)}')
           echo "::set-env name=IMAGE_VERSION::$GITHUB_SHA_SHORT"
