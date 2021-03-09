@@ -1090,6 +1090,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     widgets = db.relationship("Widget", backref="dashboard", lazy="dynamic")
+    dashboard_groups = db.relationship(
+        "DashboardGroup", back_populates="dashboard", cascade="all"
+    )
     tags = Column(
         "tags", MutableList.as_mutable(postgresql.ARRAY(db.Unicode)), nullable=True
     )
@@ -1106,6 +1109,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def all(cls, org, group_ids, user_id):
+        logging.info(Query)
         query = (
             Dashboard.query.options(
                 joinedload(Dashboard.user).load_only(
@@ -1128,12 +1132,26 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             )
             .distinct()
         )
-
+        logging.info(query)
         query = query.filter(
             or_(Dashboard.user_id == user_id, Dashboard.is_draft == False)
         )
 
         return query
+
+    @classmethod
+    def create_with_group(cls, *args, **kwargs):
+        dashboard = cls(*args, **kwargs)
+        dashboard_group = DashboardGroup(
+            dashboard=dashboard, group=dashboard.org.default_group
+        )
+        db.session.add_all([dashboard, dashboard_group])
+        return dashboard
+
+    @property
+    def groups(self):
+        groups = DashboardGroup.query.filter(DashboardGroup.dashboard == self)
+        return dict([(group.group_id, group.view_only) for group in groups])
 
     @classmethod
     def search(cls, org, groups_ids, user_id, search_term):
@@ -1185,6 +1203,17 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
 
+@generic_repr("id", "dashboard_id", "group_id", "view_only")
+class DashboardGroup(db.Model):
+    # XXX drop id, use dashboard/group as PK
+    id = primary_key("DashboardGroup")
+    dashboard_id = Column(key_type("Dashboard"), db.ForeignKey("dashboards.id"))
+    dashboard = db.relationship(Dashboard, back_populates="dashboard_groups")
+    group_id = Column(key_type("Group"), db.ForeignKey("groups.id"))
+    group = db.relationship(Group, back_populates="dashboards")
+    view_only = Column(db.Boolean, default=False)
+
+    __tablename__ = "dashboard_groups"
 
 @generic_repr("id", "name", "type", "query_id")
 class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):

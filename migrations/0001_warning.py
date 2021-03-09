@@ -3,7 +3,7 @@ from __future__ import print_function
 
 if __name__ == '__main__':
     warning = "You're using an outdated upgrade script that is running migrations the wrong way. Please upgrade to " \
-              "newer version of the script before continuning the upgrade process."
+              "newer version of the script before continuing the upgrade process."
     print("*" * 20)
     print(warning)
     print("*" * 20)
