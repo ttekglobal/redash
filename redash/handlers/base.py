@@ -2,7 +2,7 @@ import time
 
 from inspect import isclass
 from flask import Blueprint, current_app, request
-
+import logging
 from flask_login import current_user, login_required
 from flask_restful import Resource, abort
 from redash import settings
@@ -81,7 +81,6 @@ def get_object_or_404(fn, *args, **kwargs):
 
 def paginate(query_set, page, page_size, serializer, **kwargs):
     count = query_set.count()
-
     if page < 1:
         abort(400, message="Page must be positive integer.")
 
@@ -92,7 +91,6 @@ def paginate(query_set, page, page_size, serializer, **kwargs):
         abort(400, message="Page size is out of range (1-250).")
 
     results = query_set.paginate(page, page_size)
-
     # support for old function based serializers
     if isclass(serializer):
         items = serializer(results.items, **kwargs).serialize()
