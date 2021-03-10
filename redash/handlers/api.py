@@ -13,6 +13,7 @@ from redash.handlers.base import org_scoped_rule
 from redash.handlers.dashboards import (
     DashboardFavoriteListResource,
     DashboardListResource,
+    DashboardAllResource,
     DashboardResource,
     DashboardShareResource,
     DashboardTagsResource,
@@ -41,6 +42,8 @@ from redash.handlers.favorites import DashboardFavoriteResource, QueryFavoriteRe
 from redash.handlers.groups import (
     GroupDataSourceListResource,
     GroupDataSourceResource,
+    GroupDashboardResource,
+    GroupDashboardListResource,
     GroupListResource,
     GroupMemberListResource,
     GroupMemberResource,
@@ -127,6 +130,7 @@ api.add_org_resource(
 api.add_org_resource(AlertListResource, "/api/alerts", endpoint="alerts")
 
 api.add_org_resource(DashboardListResource, "/api/dashboards", endpoint="dashboards")
+api.add_org_resource(DashboardAllResource, "/api/dashboards/all", endpoint="dashboardsall")
 api.add_org_resource(
     DashboardResource, "/api/dashboards/<dashboard_id>", endpoint="dashboard"
 )
@@ -189,7 +193,14 @@ api.add_org_resource(
     "/api/groups/<group_id>/data_sources/<data_source_id>",
     endpoint="group_data_source",
 )
-
+api.add_org_resource(
+    GroupDashboardListResource,
+    "/api/groups/<group_id>/dashboards", endpoint="group_dashboards"
+)
+api.add_org_resource(
+    GroupDashboardResource,
+    "/api/groups/<group_id>/dashboards/<dashboard_id>", endpoint="group_dashboard"
+)
 api.add_org_resource(EventsResource, "/api/events", endpoint="events")
 
 api.add_org_resource(

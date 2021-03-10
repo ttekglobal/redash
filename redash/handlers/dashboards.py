@@ -1,6 +1,7 @@
 from flask import request, url_for
 from funcy import project, partial
 
+import logging
 from flask_restful import abort
 from redash import models
 from redash.handlers.base import (
@@ -52,7 +53,7 @@ class DashboardListResource(BaseResource):
         objects.
         """
         search_term = request.args.get("q")
-
+        logging.info(self.current_user)
         if search_term:
             results = models.Dashboard.search(
                 self.current_org,
@@ -71,7 +72,7 @@ class DashboardListResource(BaseResource):
         # special-casing search queries where the database
         # provides an order by search rank
         ordered_results = order_results(results, fallback=not bool(search_term))
-
+        # logging.info(ordered_results)
         page = request.args.get("page", 1, type=int)
         page_size = request.args.get("page_size", 25, type=int)
 
@@ -81,7 +82,9 @@ class DashboardListResource(BaseResource):
             page_size=page_size,
             serializer=DashboardSerializer,
         )
-
+        
+        # logging.info(response)
+        
         if search_term:
             self.record_event(
                 {"action": "search", "object_type": "dashboard", "term": search_term}
@@ -112,6 +115,50 @@ class DashboardListResource(BaseResource):
         models.db.session.commit()
         return DashboardSerializer(dashboard).serialize()
 
+
+class DashboardAllResource(BaseResource):
+    @require_permission("list_dashboards")
+    def get(self):
+        """
+        Lists all accessible dashboards.
+
+        :qparam number page_size: Number of queries to return per page
+        :qparam number page: Page number to retrieve
+        :qparam number order: Name of column to order by
+        :qparam number q: Full text search term
+
+        Responds with an array of :ref:`dashboard <dashboard-response-label>`
+        objects.
+        """
+        search_term = request.args.get("q")
+       
+
+        results = models.Dashboard.all(
+            self.current_org, self.current_user.group_ids, self.current_user.id
+        )
+
+        results = filter_by_tags(results, models.Dashboard.tags)
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_results = order_results(results, fallback=not bool(search_term))
+
+        items = DashboardSerializer(ordered_results.all()).serialize()
+        # response = paginate(
+        #     ordered_results,
+        #     page=page,
+        #     page_size=page_size,
+        #     serializer=DashboardSerializer,
+        # )
+        
+        # if search_term:
+        #     self.record_event(
+        #         {"action": "search", "object_type": "dashboard", "term": search_term}
+        #     )
+        # else:
+        #     self.record_event({"action": "list", "object_type": "dashboard"})
+        logging.info(items)
+        return {"count":results.count(), "results": items}
 
 class DashboardResource(BaseResource):
     @require_permission("list_dashboards")

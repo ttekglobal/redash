@@ -4,7 +4,7 @@ from flask_restful import abort
 from redash import models
 from redash.permissions import require_admin, require_permission
 from redash.handlers.base import BaseResource, get_object_or_404
-
+import logging
 
 class GroupListResource(BaseResource):
     @require_admin
@@ -135,6 +135,10 @@ def serialize_data_source_with_group(data_source, data_source_group):
     d["view_only"] = data_source_group.view_only
     return d
 
+def serialize_dashboard_with_group(dashboard, dashboard_group):
+    d = dashboard.to_dict()
+    d["view_only"] = dashboard_group.view_only
+    return d
 
 class GroupDataSourceListResource(BaseResource):
     @require_admin
@@ -217,5 +221,96 @@ class GroupDataSourceResource(BaseResource):
                 "object_id": group_id,
                 "object_type": "group",
                 "member_id": data_source.id,
+            }
+        )
+
+
+class GroupDashboardListResource(BaseResource):
+    @require_admin
+    def post(self, group_id):
+        logging.info('Post List')
+        dashboard_id = request.json["dashboard_id"]
+        dashboard = models.Dashboard.get_by_id_and_org(
+            dashboard_id, self.current_org
+        )
+        group = models.Group.get_by_id_and_org(group_id, self.current_org)
+
+        dashboard_group = dashboard.add_group(group)
+        models.db.session.commit()
+
+        self.record_event(
+            {
+                "action": "add_dashboard",
+                "object_id": group_id,
+                "object_type": "group",
+                "member_id": dashboard.id,
+            }
+        )
+
+        return serialize_dashboard_with_group(dashboard, dashboard_group)
+        # return dashboard
+
+    @require_admin
+    def get(self, group_id):
+        logging.info('Get List')
+        group = get_object_or_404(
+            models.Group.get_by_id_and_org, group_id, self.current_org
+        )
+
+        # TOOD: move to models
+        dashboards = models.Dashboard.query.join(models.DashboardGroup).filter(
+            models.DashboardGroup.group == group
+        )
+
+        self.record_event(
+            {"action": "list", "object_id": group_id, "object_type": "group"}
+        )
+
+        return [ds.to_dict(with_permissions_for=group) for ds in dashboards]
+        # return dashboards
+
+
+class GroupDashboardResource(BaseResource):
+    @require_admin
+    def post(self, group_id, dashboard_id):
+        logging.info('Post')
+        dashboard = models.Dashboard.get_by_id_and_org(
+            dashboard_id, self.current_org
+        )
+        group = models.Group.get_by_id_and_org(group_id, self.current_org)
+        view_only = request.json["view_only"]
+
+        dashboard_group = dashboard.update_group_permission(group, view_only)
+        models.db.session.commit()
+
+        self.record_event(
+            {
+                "action": "change_dashboard_permission",
+                "object_id": group_id,
+                "object_type": "group",
+                "member_id": dashboard.id,
+                "view_only": view_only,
+            }
+        )
+
+        return serialize_dashboard_with_group(dashboard, dashboard_group)
+
+    @require_admin
+    def delete(self, group_id, dashboard_id):
+        logging.info('Delete')
+        dashboard = models.Dashboard.get_by_id_and_org(
+            dashboard_id, self.current_org
+        )
+        group = models.Group.get_by_id_and_org(group_id, self.current_org)
+
+        dashboard.remove_group(group)
+        models.db.session.commit()
+
+        self.record_event(
+            {
+                "action": "remove_dashboard",
+                "object_id": group_id,
+                "object_type": "group",
+                "member_id": dashboard.id,
             }
         )
