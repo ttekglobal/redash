@@ -1,4 +1,4 @@
-import { find, toString } from "lodash";
+import { filter, find, toString } from "lodash";
 import { useState, useMemo, useEffect } from "react";
 import DataSource from "@/services/data-source";
 
@@ -6,19 +6,16 @@ export default function useQueryDataSources(query) {
   const [allDataSources, setAllDataSources] = useState([]);
   const [dataSourcesLoaded, setDataSourcesLoaded] = useState(false);
 
-  // const dataSources = useMemo(() => filter(allDataSources, ds => !ds.view_only || ds.id === query.data_source_id), [
-  //   allDataSources,
-  //   query.data_source_id,
-  // ]);
-
-  const dataSources = allDataSources;
+  const dataSources = useMemo(() => filter(allDataSources, ds => !ds.view_only || ds.id === query.data_source_id), [
+    allDataSources,
+    query.data_source_id,
+  ]);
 
   const dataSource = useMemo(
     () => find(dataSources, ds => toString(ds.id) === toString(query.data_source_id)) || null,
     [query.data_source_id, dataSources]
   );
 
-  // console.log(dataSource, dataSource);
   useEffect(() => {
     let cancelDataSourceLoading = false;
     DataSource.query().then(data => {

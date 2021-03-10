@@ -552,11 +552,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     ):
         query_ids = (
             db.session.query(distinct(cls.id))
-            # .join(
-            #     DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
-            # )
+            .join(
+                DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
+            )
             .filter(Query.is_archived.is_(include_archived))
-            # .filter(DataSourceGroup.group_id.in_(group_ids))
+            .filter(DataSourceGroup.group_id.in_(group_ids))
         )
         queries = (
             cls.query.options(
@@ -1218,7 +1218,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
         return cls.query.filter(cls.slug == slug, cls.org == org).one()
-    
+
     def add_group(self, group, view_only=False):
         dg = DashboardGroup(group=group, dashboard=self, view_only=view_only)
         db.session.add(dg)
@@ -1248,6 +1248,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
 
+
 @generic_repr("id", "dashboard_id", "group_id", "view_only")
 class DashboardGroup(db.Model):
     # XXX drop id, use dashboard/group as PK
@@ -1259,6 +1260,7 @@ class DashboardGroup(db.Model):
     view_only = Column(db.Boolean, default=False)
 
     __tablename__ = "dashboard_groups"
+
 
 @generic_repr("id", "name", "type", "query_id")
 class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):

@@ -188,6 +188,12 @@ class GroupDashboard extends React.Component {
 
   render() {
     const { controller } = this.props;
+    let pageItems = controller.pageItems;
+    pageItems = pageItems.map(item => ({
+      ...item,
+      type: "google_analytics",
+    }));
+
     return (
       <div data-test="Group">
         <GroupName className="d-block m-t-0 m-b-15" group={this.group} onChange={() => this.forceUpdate()} />
@@ -218,7 +224,7 @@ class GroupDashboard extends React.Component {
             {controller.isLoaded && !controller.isEmpty && (
               <div className="table-responsive">
                 <ItemsTable
-                  items={controller.pageItems}
+                  items={pageItems}
                   columns={this.listColumns}
                   showHeader={false}
                   context={this.actions}
@@ -244,7 +250,7 @@ class GroupDashboard extends React.Component {
 }
 
 const GroupDashboardPage = wrapSettingsTab(
-  "Groups.DataSources",
+  "Groups.Dashboard",
   null,
   itemsList(
     GroupDashboard,

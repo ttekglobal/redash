@@ -113,10 +113,6 @@ class QueryRecentResource(BaseResource):
             .limit(10)
         )
 
-        print('--------------')
-        print(results)
-        print('--------------')
-
         return QuerySerializer(
             results, with_last_modified_by=False, with_user=False
         ).serialize()
