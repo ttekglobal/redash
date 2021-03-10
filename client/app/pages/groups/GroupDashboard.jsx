@@ -255,7 +255,7 @@ const GroupDashboardPage = wrapSettingsTab(
           return { id: groupId };
         },
         getResource() {
-          return Group.dataSources.bind(Group);
+          return Group.dashboards.bind(Group);
         },
       }),
     () => new StateStorage({ orderByField: "name" })
