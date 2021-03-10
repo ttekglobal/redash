@@ -1103,6 +1103,32 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def __str__(self):
         return "%s=%s" % (self.id, self.name)
 
+    def to_dict(self, all=False, with_permissions_for=None):
+        d = {
+            "id": self.id,
+            "name": self.name,
+        }
+
+        if all:
+            schema = None
+            self.options.set_schema(schema)
+            d["options"] = self.options.to_dict(mask_secrets=True)
+            d["queue_name"] = self.queue_name
+            d["scheduled_queue_name"] = self.scheduled_queue_name
+            d["groups"] = self.groups
+
+        if with_permissions_for is not None:
+            d["view_only"] = (
+                db.session.query(DashboardGroup.view_only)
+                .filter(
+                    DashboardGroup.group == with_permissions_for,
+                    DashboardGroup.dashboard == self,
+                )
+                .one()[0]
+            )
+
+        return d
+
     @property
     def name_as_slug(self):
         return utils.slugify(self.name)
@@ -1192,6 +1218,25 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
         return cls.query.filter(cls.slug == slug, cls.org == org).one()
+    
+    def add_group(self, group, view_only=False):
+        dg = DashboardGroup(group=group, dashboard=self, view_only=view_only)
+        db.session.add(dg)
+        return dg
+
+    def remove_group(self, group):
+        DashboardGroup.query.filter(
+            DashboardGroup.group == group, DashboardGroup.dashboard == self
+        ).delete()
+        db.session.commit()
+
+    def update_group_permission(self, group, view_only):
+        dsg = DashboardGroup.query.filter(
+            DashboardGroup.group == group, DashboardGroup.dashboard == self
+        ).one()
+        dg.view_only = view_only
+        db.session.add(dg)
+        return dg
 
     @hybrid_property
     def lowercase_name(self):
