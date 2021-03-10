@@ -17,6 +17,8 @@ export default function DetailsPageSidebar({
   onAddMembersClick,
   canAddDataSources,
   onAddDataSourcesClick,
+  canAddDashboard,
+  onAddDashboardClick,
   onGroupDeleted,
 }) {
   const canRemove = group && currentUser.isAdmin && group.type !== "builtin";
@@ -36,6 +38,14 @@ export default function DetailsPageSidebar({
           Add Data Sources
         </Button>
       )}
+
+      {canAddDashboard && (
+        <Button className="w-100 m-t-5" type="primary" onClick={onAddDashboardClick}>
+          <i className="fa fa-plus m-r-5" />
+          Add Dashboard
+        </Button>
+      )}
+
       {canRemove && (
         <React.Fragment>
           <Divider dashed className="m-t-10 m-b-10" />
@@ -59,6 +69,9 @@ DetailsPageSidebar.propTypes = {
   canAddDataSources: PropTypes.bool,
   onAddDataSourcesClick: PropTypes.func,
 
+  canAddDashboard: PropTypes.bool,
+  onAddDashboardClick: PropTypes.func,
+
   onGroupDeleted: PropTypes.func,
 };
 
@@ -70,6 +83,9 @@ DetailsPageSidebar.defaultProps = {
 
   canAddDataSources: false,
   onAddDataSourcesClick: null,
+
+  canAddDashboard: false,
+  onAddDashboardClick: null,
 
   onGroupDeleted: null,
 };

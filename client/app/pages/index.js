@@ -20,6 +20,7 @@ import "./destinations/EditDestination";
 import "./groups/GroupsList";
 import "./groups/GroupDataSources";
 import "./groups/GroupMembers";
+import "./groups/GroupDashboard";
 
 import "./queries-list/QueriesList";
 import "./queries/QuerySource";

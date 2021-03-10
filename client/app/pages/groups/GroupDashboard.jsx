@@ -27,10 +27,11 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
 import Group from "@/services/group";
-import DataSource from "@/services/data-source";
+// import DataSource from "@/services/data-source";
 import routes from "@/services/routes";
+import { Dashboard } from "@/services/dashboard";
 
-class GroupDataSources extends React.Component {
+class GroupDashboard extends React.Component {
   static propTypes = {
     controller: ControllerType.isRequired,
   };
@@ -60,17 +61,17 @@ class GroupDataSources extends React.Component {
   ];
 
   listColumns = [
-    Columns.custom((text, datasource) => <DataSourcePreviewCard dataSource={datasource} withLink />, {
+    Columns.custom((text, dashboard) => <DataSourcePreviewCard dataSource={dashboard} withLink />, {
       title: "Name",
       field: "name",
       width: null,
     }),
     Columns.custom(
-      (text, datasource) => {
+      (text, dashboard) => {
         const menu = (
           <Menu
-            selectedKeys={[datasource.view_only ? "viewonly" : "full"]}
-            onClick={item => this.setDataSourcePermissions(datasource, item.key)}>
+            selectedKeys={[dashboard.view_only ? "viewonly" : "full"]}
+            onClick={item => this.setDashboardPermissions(dashboard, item.key)}>
             <Menu.Item key="full">Full Access</Menu.Item>
             <Menu.Item key="viewonly">View Only</Menu.Item>
           </Menu>
@@ -79,7 +80,7 @@ class GroupDataSources extends React.Component {
         return (
           <Dropdown trigger={["click"]} overlay={menu}>
             <Button className="w-100">
-              {datasource.view_only ? "View Only" : "Full Access"}
+              {dashboard.view_only ? "View Only" : "Full Access"}
               <DownOutlinedIcon />
             </Button>
           </Dropdown>
@@ -92,8 +93,8 @@ class GroupDataSources extends React.Component {
       }
     ),
     Columns.custom(
-      (text, datasource) => (
-        <Button className="w-100" type="danger" onClick={() => this.removeGroupDataSource(datasource)}>
+      (text, dashboard) => (
+        <Button className="w-100" type="danger" onClick={() => this.removeGroupDashboard(dashboard)}>
           Remove
         </Button>
       ),
@@ -115,43 +116,53 @@ class GroupDataSources extends React.Component {
       });
   }
 
-  removeGroupDataSource = datasource => {
-    Group.removeDataSource({ id: this.groupId, dataSourceId: datasource.id })
+  removeGroupDashboard = dashboard => {
+    Group.removeDashboard({ id: this.groupId, dashboardId: dashboard.id })
       .then(() => {
         this.props.controller.updatePagination({ page: 1 });
         this.props.controller.update();
       })
       .catch(() => {
-        notification.error("Failed to remove data source from group.");
+        notification.error("Failed to remove dashboard from group.");
       });
   };
 
-  setDataSourcePermissions = (datasource, permission) => {
+  setDashboardPermissions = (dashboard, permission) => {
     const viewOnly = permission !== "full";
 
-    Group.updateDataSource({ id: this.groupId, dataSourceId: datasource.id }, { view_only: viewOnly })
+    Group.updateDashboard({ id: this.groupId, dashboardId: dashboard.id }, { view_only: viewOnly })
       .then(() => {
-        datasource.view_only = viewOnly;
+        dashboard.view_only = viewOnly;
         this.forceUpdate();
       })
       .catch(() => {
-        notification.error("Failed change data source permissions.");
+        notification.error("Failed change dashboard permissions.");
       });
   };
 
-  addDataSources = () => {
-    const allDataSources = DataSource.query();
-    const alreadyAddedDataSources = map(this.props.controller.allItems, ds => ds.id);
+  addDashboard = () => {
+    const allDashboard = Dashboard.query();
+    const alreadyAddedDashboard = map(this.props.controller.allItems, ds => ds.id);
     SelectItemsDialog.showModal({
-      dialogTitle: "Add Data Sources",
-      inputPlaceholder: "Search data sources...",
-      selectedItemsTitle: "New Data Sources",
+      dialogTitle: "Add Dashboard",
+      inputPlaceholder: "Search dashboard...",
+      selectedItemsTitle: "New Dashboard",
       searchItems: searchTerm => {
         searchTerm = toLower(searchTerm);
-        return allDataSources.then(items => filter(items, ds => includes(toLower(ds.name), searchTerm)));
+        return allDashboard.then(items => {
+          let list = items.results;
+          list = list.map(item => ({
+            id: item.id,
+            name: item.name,
+            type: "google_analytics",
+          }));
+          list = filter(list, ds => includes(toLower(ds.name), searchTerm));
+          // console.log(list);
+          return list;
+        });
       },
       renderItem: (item, { isSelected }) => {
-        const alreadyInGroup = includes(alreadyAddedDataSources, item.id);
+        const alreadyInGroup = includes(alreadyAddedDashboard, item.id);
         return {
           content: (
             <DataSourcePreviewCard dataSource={item}>
@@ -170,7 +181,7 @@ class GroupDataSources extends React.Component {
         ),
       }),
     }).onClose(items => {
-      const promises = map(items, ds => Group.addDataSource({ id: this.groupId }, { data_source_id: ds.id }));
+      const promises = map(items, ds => Group.addDashboard({ id: this.groupId }, { dashboard_id: ds.id }));
       return Promise.all(promises).then(() => this.props.controller.update());
     });
   };
@@ -186,8 +197,8 @@ class GroupDataSources extends React.Component {
               controller={controller}
               group={this.group}
               items={this.sidebarMenu}
-              canAddDataSources={currentUser.isAdmin}
-              onAddDataSourcesClick={this.addDataSources}
+              canAddDashboard={currentUser.isAdmin}
+              onAddDashboardClick={this.addDashboard}
               onGroupDeleted={() => navigateTo("groups")}
             />
           </Layout.Sidebar>
@@ -195,11 +206,11 @@ class GroupDataSources extends React.Component {
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
               <div className="text-center">
-                <p>There are no data sources in this group yet.</p>
+                <p>There are no dashboard in this group yet.</p>
                 {currentUser.isAdmin && (
-                  <Button type="primary" onClick={this.addDataSources}>
+                  <Button type="primary" onClick={this.addDashboard}>
                     <i className="fa fa-plus m-r-5" />
-                    Add Data Sources
+                    Add Dashboard
                   </Button>
                 )}
               </div>
@@ -232,11 +243,11 @@ class GroupDataSources extends React.Component {
   }
 }
 
-const GroupDataSourcesPage = wrapSettingsTab(
+const GroupDashboardPage = wrapSettingsTab(
   "Groups.DataSources",
   null,
   itemsList(
-    GroupDataSources,
+    GroupDashboard,
     () =>
       new ResourceItemsSource({
         isPlainList: true,
@@ -252,10 +263,10 @@ const GroupDataSourcesPage = wrapSettingsTab(
 );
 
 routes.register(
-  "Groups.DataSources",
+  "Groups.Dashboard",
   routeWithUserSession({
-    path: "/groups/:groupId/data_sources",
-    title: "Group Data Sources",
-    render: pageProps => <GroupDataSourcesPage {...pageProps} currentPage="datasources" />,
+    path: "/groups/:groupId/dashboard",
+    title: "Group dashboard",
+    render: pageProps => <GroupDashboardPage {...pageProps} currentPage="dashboard" />,
   })
 );
