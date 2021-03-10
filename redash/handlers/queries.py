@@ -112,6 +112,11 @@ class QueryRecentResource(BaseResource):
             .order_by(models.Query.updated_at.desc())
             .limit(10)
         )
+
+        print('--------------')
+        print(results)
+        print('--------------')
+
         return QuerySerializer(
             results, with_last_modified_by=False, with_user=False
         ).serialize()
@@ -119,6 +124,7 @@ class QueryRecentResource(BaseResource):
 
 class BaseQueryListResource(BaseResource):
     def get_queries(self, search_term):
+
         if search_term:
             results = models.Query.search(
                 search_term,
@@ -131,6 +137,7 @@ class BaseQueryListResource(BaseResource):
             results = models.Query.all_queries(
                 self.current_user.group_ids, self.current_user.id, include_drafts=True
             )
+
         return filter_by_tags(results, models.Query.tags)
 
     @require_permission("view_query")
@@ -168,6 +175,9 @@ class BaseQueryListResource(BaseResource):
             with_stats=True,
             with_last_modified_by=False,
         )
+
+        print('--------queries ----\n\n\n\n')
+        print(queries)
 
         if search_term:
             self.record_event(
@@ -262,6 +272,9 @@ class QueryListResource(BaseQueryListResource):
         self.record_event(
             {"action": "create", "object_id": query.id, "object_type": "query"}
         )
+
+        print('---------QueryListResource ---------')
+        print(QueryListResource)
 
         return QuerySerializer(query, with_visualizations=True).serialize()
 

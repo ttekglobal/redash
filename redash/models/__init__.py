@@ -552,11 +552,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     ):
         query_ids = (
             db.session.query(distinct(cls.id))
-            .join(
-                DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
-            )
+            # .join(
+            #     DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
+            # )
             .filter(Query.is_archived.is_(include_archived))
-            .filter(DataSourceGroup.group_id.in_(group_ids))
+            # .filter(DataSourceGroup.group_id.in_(group_ids))
         )
         queries = (
             cls.query.options(
