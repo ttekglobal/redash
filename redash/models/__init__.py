@@ -1231,7 +1231,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         db.session.commit()
 
     def update_group_permission(self, group, view_only):
-        dsg = DashboardGroup.query.filter(
+        dg = DashboardGroup.query.filter(
             DashboardGroup.group == group, DashboardGroup.dashboard == self
         ).one()
         dg.view_only = view_only
