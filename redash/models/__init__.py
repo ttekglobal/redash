@@ -30,7 +30,7 @@ from redash.query_runner import (
     TYPE_BOOLEAN,
     TYPE_DATE,
     TYPE_DATETIME,
-)
+    BaseQueryRunner)
 from redash.utils import (
     generate_token,
     json_dumps,
@@ -38,7 +38,7 @@ from redash.utils import (
     mustache_render,
     base_url,
     sentry,
-)
+    gen_query_hash)
 from redash.utils.configuration import ConfigurationContainer
 from redash.models.parameterized_query import ParameterizedQuery
 
@@ -122,6 +122,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
             "syntax": self.query_runner.syntax,
             "paused": self.paused,
             "pause_reason": self.pause_reason,
+            "supports_auto_limit": self.query_runner.supports_auto_limit
         }
 
         if all:
@@ -358,7 +359,7 @@ class QueryResult(db.Model, QueryResultPersistence, BelongsToOrgMixin):
 
     @classmethod
     def get_latest(cls, data_source, query, max_age=0):
-        query_hash = utils.gen_query_hash(query)
+        query_hash = gen_query_hash(query)
 
         if max_age == -1:
             query = cls.query.filter(
@@ -864,11 +865,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         api_keys = db.session.execute(query, {"id": self.id}).fetchall()
         return [api_key[0] for api_key in api_keys]
 
+    def update_query_hash(self):
+        should_apply_auto_limit = self.options.get("apply_auto_limit", False) if self.options else False
+        query_runner = self.data_source.query_runner if self.data_source else BaseQueryRunner({})
+        self.query_hash = query_runner.gen_query_hash(self.query_text, should_apply_auto_limit)
 
-@listens_for(Query.query_text, "set")
-def gen_query_hash(target, val, oldval, initiator):
-    target.query_hash = utils.gen_query_hash(val)
-    target.schedule_failures = 0
+
+@listens_for(Query, "before_insert")
+@listens_for(Query, "before_update")
+def receive_before_insert_update(mapper, connection, target):
+    target.update_query_hash()
 
 
 @listens_for(Query.user_id, "set")
@@ -1096,6 +1102,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     tags = Column(
         "tags", MutableList.as_mutable(postgresql.ARRAY(db.Unicode)), nullable=True
     )
+    options = Column(
+        MutableDict.as_mutable(postgresql.JSON), server_default="{}", default={}
+    )
 
     __tablename__ = "dashboards"
     __mapper_args__ = {"version_id_col": version}
@@ -1158,7 +1167,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                 ),
                 Dashboard.org == org,
             )
-            .distinct()
         )
         logging.info(query)
         query = query.filter(
@@ -1189,6 +1197,10 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         )
 
     @classmethod
+    def search_by_user(cls, term, user, limit=None):
+        return cls.by_user(user).filter(cls.name.ilike("%{}%".format(term))).limit(limit)
+
+    @classmethod
     def all_tags(cls, org, user):
         dashboards = cls.all(org, user.group_ids, user.id)
 
@@ -1216,6 +1228,10 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                 ),
             )
         ).filter(Favorite.user_id == user.id)
+
+    @classmethod
+    def by_user(cls, user):
+        return cls.all(user.org, user.group_ids, user.id).filter(Dashboard.user == user)
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
@@ -1423,7 +1439,14 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
     user = db.relationship(User, backref="notification_destinations")
     name = Column(db.String(255))
     type = Column(db.String(255))
-    options = Column(ConfigurationContainer.as_mutable(Configuration))
+    options = Column(
+        "encrypted_options",
+        ConfigurationContainer.as_mutable(
+            EncryptedConfiguration(
+                db.Text, settings.DATASOURCE_SECRET_KEY, FernetEngine
+            )
+        ),
+    )
     created_at = Column(db.DateTime(True), default=db.func.now())
 
     __tablename__ = "notification_destinations"

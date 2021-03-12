@@ -11,6 +11,7 @@ import { clientConfig } from "@/services/auth";
 import notification from "@/services/notification";
 
 import "./index.less";
+import { policy } from "@/services/policy";
 
 function ApiKeyDialog({ dialog, ...props }) {
   const [query, setQuery] = useState(props.query);
@@ -45,7 +46,7 @@ function ApiKeyDialog({ dialog, ...props }) {
         <div className="m-b-20">
           <Input.Group compact>
             <Input readOnly value={query.api_key} />
-            {query.can_edit && (
+            {policy.canEdit(query) && (
               <Button disabled={updatingApiKey} loading={updatingApiKey} onClick={regenerateQueryApiKey}>
                 Regenerate
               </Button>
@@ -55,12 +56,16 @@ function ApiKeyDialog({ dialog, ...props }) {
 
         <h5>Example API Calls:</h5>
         <div className="m-b-10">
-          <label>Results in CSV format:</label>
-          <CodeBlock copyable>{csvUrl}</CodeBlock>
+          <span id="csv-results-label">Results in CSV format:</span>
+          <CodeBlock aria-labelledby="csv-results-label" copyable>
+            {csvUrl}
+          </CodeBlock>
         </div>
         <div>
-          <label>Results in JSON format:</label>
-          <CodeBlock copyable>{jsonUrl}</CodeBlock>
+          <span id="json-results-label">Results in JSON format:</span>
+          <CodeBlock aria-labelledby="json-results-label" copyable>
+            {jsonUrl}
+          </CodeBlock>
         </div>
       </div>
     </Modal>
