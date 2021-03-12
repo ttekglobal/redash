@@ -246,7 +246,6 @@ class VisualizationWidget extends React.Component {
 
   onSuccess = state => {
     const params = querystring.parseUrl(window.location.href);
-    // console.log(params);
 
     if (state && params.query.back === "1") {
       let p_widget = localStorage.getItem("p_widget");
@@ -259,7 +258,7 @@ class VisualizationWidget extends React.Component {
           localStorage.removeItem("p_widget");
           localStorage.removeItem("b_dashboard");
           delete params.query.back;
-          console.log(params);
+          // console.log(params);
           window.history.replaceState({}, "", `${params.url}?${querystring.stringify(params.query)}`);
         }
       }

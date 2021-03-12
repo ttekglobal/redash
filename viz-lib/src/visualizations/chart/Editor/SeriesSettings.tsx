@@ -119,33 +119,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
     debouncedUpdateSeriesOption,
   ]);
 
-  return (
-    <SortableContainer
-      axis="y"
-      lockAxis="y"
-      lockToContainerEdges
-      useDragHandle
-      helperClass="chart-editor-series-dragged-item"
-      helperContainer={(container: any) => container.querySelector("tbody")}
-      onSortEnd={handleSortEnd}
-      containerProps={{
-        className: "chart-editor-series",
-      }}>
-      <Table
-        dataSource={series}
-        columns={columns}
-        components={
-          {
-            body: {
-              row: SortableBodyRow,
-            },
-          } as any
-        }
-        onRow={item => ({ index: item.zIndex })}
-        pagination={false}
-      />
-    </SortableContainer>
-  );
+  return {};
 }
 
 SeriesSettings.propTypes = EditorPropTypes;
