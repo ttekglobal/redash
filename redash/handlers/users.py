@@ -8,6 +8,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 from disposable_email_domains import blacklist
 from funcy import partial
+from passlib.apps import custom_app_context as pwd_context
 
 from redash import models, limiter
 from redash.permissions import (
@@ -149,6 +150,7 @@ class UserListResource(BaseResource):
             org=self.current_org,
             name=req["name"],
             email=req["email"],
+            password_hash=pwd_context.encrypt(req["password"]),
             is_invitation_pending=True,
             group_ids=[self.current_org.default_group.id],
         )
