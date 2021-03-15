@@ -1146,28 +1146,56 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def all(cls, org, group_ids, user_id):
+        print('---------------test----------------')
         logging.info(Query)
-        query = (
-            Dashboard.query.options(
-                joinedload(Dashboard.user).load_only(
-                    "id", "name", "_profile_image_url", "email"
+        if 1 in group_ids:
+            query = (
+                Dashboard.query.options(
+                    joinedload(Dashboard.user).load_only(
+                        "id", "name", "_profile_image_url", "email"
+                    )
+                )
+                .outerjoin(Widget)
+                .outerjoin(Visualization)
+                .outerjoin(Query)
+                .outerjoin(
+                    DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
+                )
+                .filter(
+                    Dashboard.is_archived == False,
+                    (
+                        DataSourceGroup.group_id.in_(group_ids)
+                        | (Dashboard.user_id == user_id)
+                    ),
+                    Dashboard.org == org,
                 )
             )
-            .outerjoin(Widget)
-            .outerjoin(Visualization)
-            .outerjoin(Query)
-            .outerjoin(
-                DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
+        else:
+            query = (
+                Dashboard.query.options(
+                    joinedload(Dashboard.user).load_only(
+                        "id", "name", "_profile_image_url", "email"
+                    )
+                )
+                .outerjoin(Widget)
+                .outerjoin(Visualization)
+                .outerjoin(Query)
+                # .outerjoin(
+                #     DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
+                # )
+                .outerjoin(DashboardGroup)
+                .filter(
+                    Dashboard.is_archived == False,
+                    (
+                        # DataSourceGroup.group_id.in_(group_ids) |
+                        DashboardGroup.group_id.in_(group_ids)
+                        | (Dashboard.user_id == user_id)
+
+                    ),
+                    Dashboard.org == org
+                )
             )
-            .filter(
-                Dashboard.is_archived == False,
-                (
-                    DataSourceGroup.group_id.in_(group_ids)
-                    | (Dashboard.user_id == user_id)
-                ),
-                Dashboard.org == org,
-            )
-        )
+
         logging.info(query)
         query = query.filter(
             or_(Dashboard.user_id == user_id, Dashboard.is_draft == False)
