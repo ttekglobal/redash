@@ -1,9 +1,9 @@
 import { filter, map, includes, toLower } from "lodash";
 import React from "react";
 import Button from "antd/lib/button";
-import Dropdown from "antd/lib/dropdown";
-import Menu from "antd/lib/menu";
-import DownOutlinedIcon from "@ant-design/icons/DownOutlined";
+// import Dropdown from "antd/lib/dropdown";
+// import Menu from "antd/lib/menu";
+// import DownOutlinedIcon from "@ant-design/icons/DownOutlined";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -66,32 +66,32 @@ class GroupDashboard extends React.Component {
       field: "name",
       width: null,
     }),
-    Columns.custom(
-      (text, dashboard) => {
-        const menu = (
-          <Menu
-            selectedKeys={[dashboard.view_only ? "viewonly" : "full"]}
-            onClick={item => this.setDashboardPermissions(dashboard, item.key)}>
-            <Menu.Item key="full">Full Access</Menu.Item>
-            <Menu.Item key="viewonly">View Only</Menu.Item>
-          </Menu>
-        );
+    // Columns.custom(
+    //   (text, dashboard) => {
+    //     const menu = (
+    //       <Menu
+    //         selectedKeys={[dashboard.view_only ? "viewonly" : "full"]}
+    //         onClick={item => this.setDashboardPermissions(dashboard, item.key)}>
+    //         <Menu.Item key="full">Full Access</Menu.Item>
+    //         <Menu.Item key="viewonly">View Only</Menu.Item>
+    //       </Menu>
+    //     );
 
-        return (
-          <Dropdown trigger={["click"]} overlay={menu}>
-            <Button className="w-100">
-              {dashboard.view_only ? "View Only" : "Full Access"}
-              <DownOutlinedIcon />
-            </Button>
-          </Dropdown>
-        );
-      },
-      {
-        width: "1%",
-        className: "p-r-0",
-        isAvailable: () => currentUser.isAdmin,
-      }
-    ),
+    //     return (
+    //       <Dropdown trigger={["click"]} overlay={menu}>
+    //         <Button className="w-100">
+    //           {dashboard.view_only ? "View Only" : "Full Access"}
+    //           <DownOutlinedIcon />
+    //         </Button>
+    //       </Dropdown>
+    //     );
+    //   },
+    //   {
+    //     width: "1%",
+    //     className: "p-r-0",
+    //     isAvailable: () => currentUser.isAdmin,
+    //   }
+    // ),
     Columns.custom(
       (text, dashboard) => (
         <Button className="w-100" type="danger" onClick={() => this.removeGroupDashboard(dashboard)}>
