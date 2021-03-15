@@ -120,19 +120,26 @@ class QueryRecentResource(BaseResource):
 
 class BaseQueryListResource(BaseResource):
     def get_queries(self, search_term):
-
-        if search_term:
-            results = models.Query.search(
-                search_term,
-                self.current_user.group_ids,
-                self.current_user.id,
-                include_drafts=True,
-                multi_byte_search=current_org.get_setting("multi_byte_search_enabled"),
-            )
+        # print('--------------')
+        # print(self.current_user.group_ids)
+        if (1 in self.current_user.group_ids):
+            if search_term:
+                results = models.Query.search(
+                    search_term,
+                    self.current_user.group_ids,
+                    self.current_user.id,
+                    include_drafts=True,
+                    multi_byte_search=current_org.get_setting("multi_byte_search_enabled"),
+                )
+            else:
+                results = models.Query.all_queries(
+                    self.current_user.group_ids, self.current_user.id, include_drafts=True
+                )
         else:
-            results = models.Query.all_queries(
-                self.current_user.group_ids, self.current_user.id, include_drafts=True
-            )
+            if search_term:
+                results = models.Query.search_by_user(search_term, self.current_user)
+            else:
+                results = models.Query.by_user(self.current_user)
 
         return filter_by_tags(results, models.Query.tags)
 
