@@ -262,10 +262,12 @@ class VisualizationWidget extends React.Component {
           window.history.replaceState({}, "", `${params.url}?${querystring.stringify(params.query)}`);
         }
       }
-    } else {
-      localStorage.removeItem("p_widget");
-      localStorage.removeItem("b_dashboard");
     }
+    // else {
+    //   // console.log("call remove");
+    //   // localStorage.removeItem("p_widget");
+    //   // localStorage.removeItem("b_dashboard");
+    // }
   };
 
   onLocalFiltersChange = localFilters => {
