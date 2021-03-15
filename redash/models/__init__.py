@@ -1137,31 +1137,47 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def all(cls, org, group_ids, user_id):
-        query = (
-            Dashboard.query.options(
-                joinedload(Dashboard.user).load_only(
-                    "id", "name", "_profile_image_url", "email"
+        # User in group admin can access all dashboards
+        if 1 in group_ids:
+            query = (
+                Dashboard.query.options(
+                    joinedload(Dashboard.user).load_only(
+                        "id", "name", "_profile_image_url", "email"
+                    )
                 )
+                # .outerjoin(Widget)
+                # .outerjoin(Visualization)
+                # .outerjoin(Query)
+                # .outerjoin(
+                #     DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
+                # )
+                .outerjoin(DashboardGroup)
+                .filter(
+                    Dashboard.is_archived == False,
+                    Dashboard.org == org
+                )
+                .distinct()
             )
-            # .outerjoin(Widget)
-            # .outerjoin(Visualization)
-            # .outerjoin(Query)
-            # .outerjoin(
-            #     DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
-            # )
-            .outerjoin(DashboardGroup)
-            .filter(
-                Dashboard.is_archived == False,
-                (
-                    # DataSourceGroup.group_id.in_(group_ids)
-                    DashboardGroup.group_id.in_(group_ids)   
-                    | (Dashboard.user_id == user_id)
-                    
-                ),
-                Dashboard.org == org,
+        # User not in group admin can only access dashboards within their groups and owner dashboards.
+        else :
+            query = (
+                Dashboard.query.options(
+                    joinedload(Dashboard.user).load_only(
+                        "id", "name", "_profile_image_url", "email"
+                    )
+                )
+                .outerjoin(DashboardGroup)
+                .filter(
+                    Dashboard.is_archived == False,
+                    (
+                        DashboardGroup.group_id.in_(group_ids)   
+                        | (Dashboard.user_id == user_id)
+                        
+                    ),
+                    Dashboard.org == org
+                )
+                .distinct()
             )
-            .distinct()
-        )
         print(query)
         query = query.filter(
             or_(Dashboard.user_id == user_id, Dashboard.is_draft == False)
