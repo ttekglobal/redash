@@ -60,13 +60,6 @@
         width: 100%;
       }
 
-      form[name="login"] input:hover,
-      form[name="login"] input:focus,
-      form[name="login"] input:active {
-        outline: none;
-        border: 1px solid #303030;
-      }
-
       form[name="login"] label {
         color: #fff;
         margin-bottom: 5px;
@@ -78,12 +71,19 @@
       form[name="login"] input {
         height: 40px;
         background: #121212;
-        border: 1px solid transparent;
+        border: 1px solid transparent !important;
         border-radius: 4px;
         color: #fff !important;
         width: 270px;
         border: none;
         padding: 0 20px;
+      }
+
+      form[name="login"] input:hover,
+      form[name="login"] input:focus,
+      form[name="login"] input:active {
+        outline: none;
+        border: 1px solid #303030 !important;
       }
 
       label[for="inputPassword"] {
