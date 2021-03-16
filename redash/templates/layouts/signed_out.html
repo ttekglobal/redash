@@ -60,7 +60,7 @@
         width: 100%;
       }
 
-      form[name="login"] label {
+      form label {
         color: #fff;
         margin-bottom: 5px;
         width: 120px;
@@ -68,7 +68,11 @@
         font-size: 15px;
       }
 
-      form[name="login"] input {
+      form label[for="email"] {
+        display: inline-block;
+      }
+
+      form input {
         height: 40px;
         background: #121212;
         border: 1px solid transparent !important;
@@ -79,9 +83,9 @@
         padding: 0 20px;
       }
 
-      form[name="login"] input:hover,
-      form[name="login"] input:focus,
-      form[name="login"] input:active {
+      form input:hover,
+      form input:focus,
+      form input:active {
         outline: none;
         border: 1px solid #303030 !important;
       }
@@ -108,7 +112,7 @@
       }
       .header img {
         height: 80px;
-        margin-left: 60px;
+        /* margin-left: 60px; */
       }
       .m-t-25 {
         margin-top: 40px;
@@ -124,6 +128,10 @@
         align-items: center;
         padding-top: 10%;
       }
+      .img-logo {
+        display: flex;
+        justify-content: center;
+      }
     </style>
 
     {% block head %}{% endblock %}
@@ -133,7 +141,7 @@
   >
     <div>
       <div class="header">
-        <div class="text-center m-b-15">
+        <div class="text-center m-b-15 img-logo">
           <a href="/"><img src="/static/images/ttek_logo.png"/></a>
         </div>
         {% if not hide_page_header %}
