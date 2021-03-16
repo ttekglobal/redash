@@ -226,7 +226,7 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
         dashboard_groups = []
         for group in obj.dashboard_groups:
             dashboard_groups.append(group.group_id)
-        intersection_group = [1] if 1 in user.group_ids else list(set(dashboard_groups) & set(user.group_ids))
+        intersection_group = [1] if (1 in user.group_ids or user.id == obj.user_id) else list(set(dashboard_groups) & set(user.group_ids))
     else:
         intersection_group = []
 
