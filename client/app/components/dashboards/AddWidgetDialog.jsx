@@ -36,7 +36,7 @@ function fetch(value, callback) {
 }
 
 function SubDashboardSelect(props) {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
   // const [doSearch, searchResults] = useSearchResults(queryDashboard, { initialResults: [] });
 
