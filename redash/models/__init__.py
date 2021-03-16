@@ -1146,7 +1146,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def all(cls, org, group_ids, user_id):
-        print('---------------test----------------')
         logging.info(Query)
         if 1 in group_ids:
             query = (

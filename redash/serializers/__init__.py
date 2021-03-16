@@ -13,7 +13,8 @@ from redash import models
 from redash.permissions import has_access, view_only
 from redash.utils import json_loads
 from redash.models.parameterized_query import ParameterizedQuery
-
+import logging
+import json
 
 from .query_result import (
     serialize_query_result,
@@ -216,7 +217,18 @@ def serialize_alert(alert, full=True):
 
 
 def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=True):
+    # print('------------obj------------')
+    # print(obj.dashboard_groups, user)
+
     layout = json_loads(obj.layout)
+
+    if user is not None:
+        dashboard_groups = []
+        for group in obj.dashboard_groups:
+            dashboard_groups.append(group.group_id)
+        intersection_group = [1] if 1 in user.group_ids else list(set(dashboard_groups) & set(user.group_ids))
+    else:
+        intersection_group = []
 
     widgets = []
 
@@ -263,8 +275,11 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
         "tags": obj.tags or [],
         "updated_at": obj.updated_at,
         "created_at": obj.created_at,
-        "version": obj.version,
+        "version": obj.version
     }
+
+    if user is not None:
+        d['can_view'] = True if len(intersection_group) > 0 else False
 
     return d
 
@@ -277,6 +292,7 @@ class DashboardSerializer(Serializer):
     def serialize(self):
         if isinstance(self.object_or_list, models.Dashboard):
             result = serialize_dashboard(self.object_or_list, **self.options)
+
             if (
                 self.options.get("with_favorite_state", True)
                 and not current_user.is_api_user()

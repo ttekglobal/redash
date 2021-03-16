@@ -196,6 +196,7 @@ class DashboardResource(BaseResource):
             fn = models.Dashboard.get_by_id_and_org
 
         dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
+
         response = DashboardSerializer(
             dashboard, with_widgets=True, user=self.current_user
         ).serialize()
