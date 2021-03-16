@@ -1180,9 +1180,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                 .outerjoin(Widget)
                 .outerjoin(Visualization)
                 .outerjoin(Query)
-                # .outerjoin(
-                #     DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
-                # )
+                .outerjoin(
+                    DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
+                )
                 .outerjoin(DashboardGroup)
                 .filter(
                     Dashboard.is_archived == False,
@@ -1191,6 +1191,10 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                         DashboardGroup.group_id.in_(group_ids)
                         | (Dashboard.user_id == user_id)
 
+                    ),
+                       (
+                        DataSourceGroup.group_id.in_(group_ids)
+                        | (Dashboard.user_id == user_id)
                     ),
                     Dashboard.org == org
                 )
