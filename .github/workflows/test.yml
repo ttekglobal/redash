@@ -2,7 +2,7 @@
 name: Tests & Build Redash
 on:
   push:
-    branches: "rpd9"
+    branches: "tinrpt_new"
 
 jobs:
   buidl-redash:
@@ -28,10 +28,10 @@ jobs:
       - name: Build Redash image
         run: |
           # cd packages/redash/
-          docker build --tag docker.pkg.github.com/ttekglobal/redash/ttekredash:dev-$IMAGE_VERSION .
+          docker build --tag docker.pkg.github.com/ttekglobal/redash/ttekredash_d9:dev-$IMAGE_VERSION .
 
       - name: Push Redash image
-        run: docker push docker.pkg.github.com/ttekglobal/redash/ttekredash:dev-$IMAGE_VERSION
+        run: docker push docker.pkg.github.com/ttekglobal/redash/ttekredash_d9:dev-$IMAGE_VERSION
   deploy-k8s:
     name: "Deployment"
     runs-on: ubuntu-latest
