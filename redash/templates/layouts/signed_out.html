@@ -60,6 +60,10 @@
         width: 100%;
       }
 
+      button[type="submit"]:focus {
+        outline: none;
+      }
+
       form label {
         color: #fff;
         margin-bottom: 5px;
@@ -131,6 +135,55 @@
       .img-logo {
         display: flex;
         justify-content: center;
+      }
+
+      .setup-page {
+        color: #fff;
+      }
+      .setup-page h4 {
+        margin: 0;
+      }
+
+      .setup-page label[for="email"] {
+        display: block;
+      }
+
+      .setup-page label {
+        padding: 15px 0 0 0;
+      }
+
+      .setup-page .checkbox label,
+      .setup-page .checkbox input {
+        width: fit-content;
+        height: fit-content;
+        padding: 0;
+      }
+
+      .setup-page label[for="org_name"] {
+        width: fit-content;
+      }
+      .first-checkbox {
+        margin-top: 20px;
+      }
+
+      .general-section {
+        margin-top: 40px !important;
+        border-top: 1px solid #303030;
+        padding-top: 35px;
+      }
+
+      .user-section {
+        margin-top: 40px !important;
+        border-top: 1px solid #303030;
+        padding-top: 35px;
+      }
+
+      .alert-danger {
+        background: #fd6060;
+        color: #fff;
+        padding: 5px 12px;
+        /* border-radius: 2px; */
+        margin-bottom: 20px;
       }
     </style>
 
