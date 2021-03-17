@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { compact, isEmpty, invoke, map } from "lodash";
-import { markdown } from "markdown";
+// import { markdown } from "markdown";
 import cx from "classnames";
 import Menu from "antd/lib/menu";
-import HtmlContent from "@redash/viz/lib/components/HtmlContent";
+// import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 import { formatDateTime } from "@/lib/utils";
@@ -104,12 +104,15 @@ function VisualizationWidgetHeader({
         <div className="th-title">
           <p>
             <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
+            {!isEmpty(widget.getQuery().description) && (
+              <i class="zmdi zmdi-info description" title={widget.getQuery().description || ""}></i>
+            )}
           </p>
-          {!isEmpty(widget.getQuery().description) && (
+          {/* {!isEmpty(widget.getQuery().description) && (
             <HtmlContent className="text-muted markdown query--description">
               {markdown.toHTML(widget.getQuery().description || "")}
             </HtmlContent>
-          )}
+          )} */}
         </div>
       </div>
       {!isEmpty(parameters) && (
