@@ -91,11 +91,11 @@ class EditDestination extends React.Component {
 
     return (
       <div className="row" data-test="Destination">
-        <div className="text-center m-b-10">
+        <div className="m-b-10 logo-img">
           <img className="p-5" src={`${IMG_ROOT}/${type.type}.png`} alt={type.name} width="64" />
           <h3 className="m-0">{type.name}</h3>
         </div>
-        <div className="col-md-4 col-md-offset-4 m-b-10">
+        <div className="col-md-4 m-b-10">
           <DynamicForm {...formProps} />
         </div>
       </div>

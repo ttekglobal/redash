@@ -10,6 +10,7 @@ from redash.handlers.base import (
     paginate,
     filter_by_tags,
     order_results as _order_results,
+    dashboardPagination
 )
 from redash.permissions import (
     can_modify,
@@ -39,6 +40,7 @@ order_results = partial(
 
 
 class DashboardListResource(BaseResource):
+      
     @require_permission("list_dashboards")
     def get(self):
         """
@@ -53,7 +55,6 @@ class DashboardListResource(BaseResource):
         objects.
         """
         search_term = request.args.get("q")
-        logging.info(self.current_user)
         if search_term:
             results = models.Dashboard.search(
                 self.current_org,
@@ -72,19 +73,12 @@ class DashboardListResource(BaseResource):
         # special-casing search queries where the database
         # provides an order by search rank
         ordered_results = order_results(results, fallback=not bool(search_term))
-        # logging.info(ordered_results)
+        ordered_results = ordered_results.all()
         page = request.args.get("page", 1, type=int)
         page_size = request.args.get("page_size", 25, type=int)
 
-        response = paginate(
-            ordered_results,
-            page=page,
-            page_size=page_size,
-            serializer=DashboardSerializer,
-        )
-
-        # logging.info(response)
-
+        response = dashboardPagination(ordered_results, page_size, page,  serializer=DashboardSerializer)
+       
         if search_term:
             self.record_event(
                 {"action": "search", "object_type": "dashboard", "term": search_term}
@@ -93,7 +87,8 @@ class DashboardListResource(BaseResource):
             self.record_event({"action": "list", "object_type": "dashboard"})
 
         return response
-
+    
+  
     @require_permission("create_dashboard")
     def post(self):
         """
@@ -196,6 +191,7 @@ class DashboardResource(BaseResource):
             fn = models.Dashboard.get_by_id_and_org
 
         dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
+
         response = DashboardSerializer(
             dashboard, with_widgets=True, user=self.current_user
         ).serialize()

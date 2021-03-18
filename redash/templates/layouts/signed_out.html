@@ -25,16 +25,22 @@
       sizes="16x16"
       href="/static/images/favicon-16x16.png"
     />
-    {% block head %}{% endblock %}
+
     <style>
       body {
         background: #121212;
       }
       .bg-white.tiled {
         background: #1e1e1e !important;
+        padding: 30px;
+        border-radius: 4px;
       }
       h3.text-center {
         color: #fff;
+        text-transform: uppercase;
+        font-weight: normal;
+        letter-spacing: 1px;
+        text-align: center;
       }
 
       button[type="submit"] {
@@ -42,27 +48,52 @@
         letter-spacing: 0.0892857143em;
         border-radius: 4px;
         background-color: #26387b;
-        height: 36px;
-        font-size: 14px;
+        height: 40px;
+        font-size: 16px;
         box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
           0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
-      }
-      button[type="submit"]:hover,
-      button[type="submit"]:focus,
-      button[type="submit"]:active {
-        background-color: #405187 !important;
-      }
-      form[name="login"] label {
+        border: none;
         color: #fff;
-        margin-bottom: 10px;
+        font-weight: bold;
+        padding: 0 20px;
+        margin-top: 20px;
+        width: 100%;
       }
-      form[name="login"] input {
-        height: 36px;
+
+      form label {
+        color: #fff;
+        margin-bottom: 5px;
+        width: 120px;
+        display: block;
+        font-size: 15px;
+      }
+
+      form label[for="email"] {
+        display: inline-block;
+      }
+
+      form input {
+        height: 40px;
         background: #121212;
-        border-color: rgba(255, 255, 255, 0.12);
+        border: 1px solid transparent !important;
         border-radius: 4px;
         color: #fff !important;
+        width: 270px;
+        border: none;
+        padding: 0 20px;
       }
+
+      form input:hover,
+      form input:focus,
+      form input:active {
+        outline: none;
+        border: 1px solid #303030 !important;
+      }
+
+      label[for="inputPassword"] {
+        margin-top: 5px;
+      }
+
       .form-control:hover {
         border-color: #415fcc;
       }
@@ -81,15 +112,36 @@
       }
       .header img {
         height: 80px;
+        /* margin-left: 60px; */
+      }
+      .m-t-25 {
+        margin-top: 40px;
+      }
+      .m-t-25 a {
+        font-size: 14px;
+        text-decoration: initial;
+      }
+
+      .signed-out {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-top: 10%;
+      }
+      .img-logo {
+        display: flex;
+        justify-content: center;
       }
     </style>
+
+    {% block head %}{% endblock %}
   </head>
   <body
     class="d-flex flex-column justify-content-center align-items-center signed-out"
   >
     <div>
       <div class="header">
-        <div class="text-center m-b-15">
+        <div class="text-center m-b-15 img-logo">
           <a href="/"><img src="/static/images/ttek_logo.png"/></a>
         </div>
         {% if not hide_page_header %}

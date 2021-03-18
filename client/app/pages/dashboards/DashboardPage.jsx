@@ -94,6 +94,7 @@ function DashboardComponent(props) {
     const paramOrder = map(parameters, "name");
     updateDashboard({ options: { globalParamOrder: paramOrder } });
   };
+  const canView = dashboard.can_view;
 
   useEffect(() => {
     if (pageContainer) {
@@ -128,36 +129,50 @@ function DashboardComponent(props) {
           />
         }
       />
-      {!isEmpty(globalParameters) && (
-        <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
-          <Parameters
-            parameters={globalParameters}
-            onValuesChange={refreshDashboard}
-            sortable={editingLayout}
-            onParametersEdit={onParametersEdit}
-          />
+
+      {canView ? (
+        <div>
+          {!isEmpty(globalParameters) && (
+            <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
+              <Parameters
+                parameters={globalParameters}
+                onValuesChange={refreshDashboard}
+                sortable={editingLayout}
+                onParametersEdit={onParametersEdit}
+              />
+            </div>
+          )}
+          {!isEmpty(filters) && (
+            <div className="m-b-10 p-15 bg-white tiled" data-test="DashboardFilters">
+              <Filters filters={filters} onChange={setFilters} />
+            </div>
+          )}
+          {editingLayout && <DashboardSettings dashboardConfiguration={dashboardConfiguration} />}
+          <div id="dashboard-container">
+            <DashboardGrid
+              dashboard={dashboard}
+              widgets={dashboard.widgets}
+              filters={filters}
+              isEditing={editingLayout}
+              onLayoutChange={editingLayout ? saveDashboardLayout : () => {}}
+              onBreakpointChange={setGridDisabled}
+              onLoadWidget={loadWidget}
+              onRefreshWidget={refreshWidget}
+              onRemoveWidget={removeWidget}
+              onParameterMappingsChange={loadDashboard}
+            />
+          </div>
+        </div>
+      ) : (
+        <div class="no-permission t-body scrollbox">
+          <div class="text-center">
+            <h1>
+              <span class="zmdi zmdi-lock"></span>
+            </h1>
+            <p class="text-muted">This dashboard requires permission so you can not access to.</p>
+          </div>
         </div>
       )}
-      {!isEmpty(filters) && (
-        <div className="m-b-10 p-15 bg-white tiled" data-test="DashboardFilters">
-          <Filters filters={filters} onChange={setFilters} />
-        </div>
-      )}
-      {editingLayout && <DashboardSettings dashboardConfiguration={dashboardConfiguration} />}
-      <div id="dashboard-container">
-        <DashboardGrid
-          dashboard={dashboard}
-          widgets={dashboard.widgets}
-          filters={filters}
-          isEditing={editingLayout}
-          onLayoutChange={editingLayout ? saveDashboardLayout : () => {}}
-          onBreakpointChange={setGridDisabled}
-          onLoadWidget={loadWidget}
-          onRefreshWidget={refreshWidget}
-          onRemoveWidget={removeWidget}
-          onParameterMappingsChange={loadDashboard}
-        />
-      </div>
       {editingLayout && (
         <AddWidgetContainer dashboardConfiguration={dashboardConfiguration} style={bottomPanelStyles} />
       )}
