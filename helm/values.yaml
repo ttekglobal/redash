@@ -263,12 +263,12 @@ ingress:
     # kubernetes.io/tls-acme: "true"
   # ingress.hosts -- Ingress resource hostnames and path mappings
   hosts:
-    - host: ra.ttekglobal.com
+    - host: rad9.ttekglobal.com
       paths:
         - /
-    - host: report.ttekglobal.com
-      paths:
-        - /
+    # - host: report.ttekglobal.com
+    #   paths:
+    #     - /
   # ingress.tls -- Ingress TLS configuration
   tls:
     - hosts:
