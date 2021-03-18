@@ -55,7 +55,7 @@ from .types import (
     pseudo_json_cast_property
 )
 from .users import AccessPermission, AnonymousUser, ApiUser, Group, User  # noqa
-
+from sqlalchemy.orm import aliased
 logger = logging.getLogger(__name__)
 
 
@@ -1146,7 +1146,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def all(cls, org, group_ids, user_id):
-        logging.info(Query)
         if 1 in group_ids:
             query = (
                 Dashboard.query.options(
@@ -1179,9 +1178,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                 .outerjoin(Widget)
                 .outerjoin(Visualization)
                 .outerjoin(Query)
-                # .outerjoin(
-                #     DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
-                # )
+                .outerjoin(
+                    DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
+                )
                 .outerjoin(DashboardGroup)
                 .filter(
                     Dashboard.is_archived == False,
@@ -1191,15 +1190,16 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                         | (Dashboard.user_id == user_id)
 
                     ),
+                    (
+                        DataSourceGroup.group_id.in_(group_ids)
+                        | (Dashboard.user_id == user_id)
+                    ),
                     Dashboard.org == org
                 )
             )
-
-        logging.info(query)
         query = query.filter(
             or_(Dashboard.user_id == user_id, Dashboard.is_draft == False)
         )
-
         return query
 
     @classmethod

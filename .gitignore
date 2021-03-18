@@ -28,3 +28,4 @@ npm-debug.log
 client/cypress/screenshots
 client/cypress/videos
 redash_dev
+redash/tasks/worker.py
