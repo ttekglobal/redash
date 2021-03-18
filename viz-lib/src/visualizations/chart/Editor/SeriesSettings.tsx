@@ -126,11 +126,12 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
       lockToContainerEdges
       useDragHandle
       helperClass="chart-editor-series-dragged-item"
-      helperContainer={(container: any) => container.querySelector("tbody")}
+      helperContainersdvfcsdf={(container: any) => container.querySelector("tbody")}
       onSortEnd={handleSortEnd}
       containerProps={{
         className: "chart-editor-series",
       }}>
+      {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
       <Table
         dataSource={series}
         columns={columns}
@@ -139,6 +140,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }: any) 
             row: SortableBodyRow,
           },
         }}
+        // @ts-expect-error ts-migrate(2322) FIXME: Type '(item: object) => { index: any; }' is not as... Remove this comment to see the full error message
         onRow={item => ({ index: item.zIndex })}
         pagination={false}
       />
