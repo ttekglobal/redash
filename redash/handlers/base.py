@@ -108,10 +108,14 @@ def dashboardPagination(items, page_size, page, serializer):
 
     if page_size > 250 or page_size < 1:
         abort(400, message="Page size is out of range (1-250).")
-
-    pagingItems = list(chunks(items,page_size))[page-1]
-    items = serializer(pagingItems).serialize()
-    return {"count": count, "page": page, "page_size": page_size, "results": items}
+    if count == 0:
+        pagingItems = []
+    else:
+        pagingItems = list(chunks(items,page_size))[page-1]
+    print(pagingItems)
+    finalItems = serializer(pagingItems).serialize()
+    print(finalItems)
+    return {"count": count, "page": page, "page_size": page_size, "results": finalItems}
 
 def chunks(lst, n):
         """Yield successive n-sized chunks from lst."""
