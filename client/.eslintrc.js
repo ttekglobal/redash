@@ -20,6 +20,22 @@ module.exports = {
     // allow debugger during development
     "no-debugger": process.env.NODE_ENV === "production" ? 2 : 0,
     "jsx-a11y/anchor-is-valid": "off",
+    "no-console": ["warn", { allow: ["warn", "error"] }],
+    "no-restricted-imports": [
+      "error",
+      {
+        paths: [
+          {
+            name: "antd",
+            message: "Please use 'import XXX from antd/lib/XXX' import instead.",
+          },
+          {
+            name: "antd/lib",
+            message: "Please use 'import XXX from antd/lib/XXX' import instead.",
+          },
+        ],
+      },
+    ],
   },
   overrides: [
     {
@@ -34,6 +50,8 @@ module.exports = {
         // Do not complain about useless contructors in declaration files
         "no-useless-constructor": "off",
         "@typescript-eslint/no-useless-constructor": "error",
+        // Many API fields and generated types use camelcase
+        "@typescript-eslint/camelcase": "off",
       },
     },
   ],

@@ -48,6 +48,12 @@ class GroupMembers extends React.Component {
       title: "Data Sources",
       isAvailable: () => currentUser.isAdmin,
     },
+    {
+      key: "dashboard",
+      href: `groups/${this.groupId}/dashboard`,
+      title: "Dashboard group",
+      isAvailable: () => currentUser.isAdmin,
+    },
   ];
 
   listColumns = [

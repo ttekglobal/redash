@@ -51,6 +51,12 @@ class GroupDataSources extends React.Component {
       title: "Data Sources",
       isAvailable: () => currentUser.isAdmin,
     },
+    {
+      key: "dashboard",
+      href: `groups/${this.groupId}/dashboard`,
+      title: "Dashboard group",
+      isAvailable: () => currentUser.isAdmin,
+    },
   ];
 
   listColumns = [
@@ -171,6 +177,7 @@ class GroupDataSources extends React.Component {
 
   render() {
     const { controller } = this.props;
+
     return (
       <div data-test="Group">
         <GroupName className="d-block m-t-0 m-b-15" group={this.group} onChange={() => this.forceUpdate()} />

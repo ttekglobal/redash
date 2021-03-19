@@ -8,7 +8,6 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 from disposable_email_domains import blacklist
 from funcy import partial
-from passlib.apps import custom_app_context as pwd_context
 
 from redash import models, limiter
 from redash.permissions import (
@@ -63,6 +62,14 @@ def invite_user(org, inviter, user, send_email=True):
         d["invite_link"] = invite_url
 
     return d
+
+
+def require_allowed_email(email):
+    # `example.com` and `example.com.` are equal - last dot stands for DNS root but usually is omitted
+    _, domain = email.lower().rstrip(".").split("@", 1)
+
+    if domain in blacklist or domain in settings.BLOCKED_DOMAINS:
+        abort(400, message="Bad email address.")
 
 
 class UserListResource(BaseResource):
@@ -141,16 +148,12 @@ class UserListResource(BaseResource):
 
         if "@" not in req["email"]:
             abort(400, message="Bad email address.")
-        name, domain = req["email"].split("@", 1)
-
-        if domain.lower() in blacklist or domain.lower() == "qq.com":
-            abort(400, message="Bad email address.")
+        require_allowed_email(req["email"])
 
         user = models.User(
             org=self.current_org,
             name=req["name"],
             email=req["email"],
-            password_hash=pwd_context.encrypt(req["password"]),
             is_invitation_pending=True,
             group_ids=[self.current_org.default_group.id],
         )
@@ -260,10 +263,7 @@ class UserResource(BaseResource):
                 params.pop("group_ids")
 
         if "email" in params:
-            _, domain = params["email"].split("@", 1)
-
-            if domain.lower() in blacklist or domain.lower() == "qq.com":
-                abort(400, message="Bad email address.")
+            require_allowed_email(params["email"])
 
         email_address_changed = "email" in params and params["email"] != user.email
         needs_to_verify_email = (

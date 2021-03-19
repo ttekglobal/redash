@@ -89,7 +89,6 @@ def paginate(query_set, page, page_size, serializer, **kwargs):
 
     if page_size > 250 or page_size < 1:
         abort(400, message="Page size is out of range (1-250).")
-
     results = query_set.paginate(page, page_size)
     # support for old function based serializers
     if isclass(serializer):
@@ -99,6 +98,25 @@ def paginate(query_set, page, page_size, serializer, **kwargs):
 
     return {"count": count, "page": page, "page_size": page_size, "results": items}
 
+def dashboardPagination(items, page_size, page, serializer):
+    count = len(items)
+    if page < 1:
+        abort(400, message="Page must be positive integer.")
+
+    if (page - 1) * page_size + 1 > count > 0:
+        abort(400, message="Page is out of range.")
+
+    if page_size > 250 or page_size < 1:
+        abort(400, message="Page size is out of range (1-250).")
+
+    pagingItems = list(chunks(items,page_size))[page-1]
+    items = serializer(pagingItems).serialize()
+    return {"count": count, "page": page, "page_size": page_size, "results": items}
+
+def chunks(lst, n):
+        """Yield successive n-sized chunks from lst."""
+        for i in range(0, len(lst), n):
+            yield lst[i:i + n]
 
 def org_scoped_rule(rule):
     if settings.MULTI_ORG:
@@ -127,7 +145,6 @@ def order_results(results, default_order, allowed_orders, fallback=True):
     """
     # See if a particular order has been requested
     requested_order = request.args.get("order", "").strip()
-
     # and if not (and no fallback is wanted) return results as is
     if not requested_order and not fallback:
         return results

@@ -1,5 +1,5 @@
 import { map, includes, groupBy, first, find } from "lodash";
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
 import Modal from "antd/lib/modal";
@@ -10,25 +10,55 @@ import QuerySelector from "@/components/QuerySelector";
 import notification from "@/services/notification";
 import { Query } from "@/services/query";
 import { Dashboard } from "@/services/dashboard";
-import useSearchResults from "@/lib/hooks/useSearchResults";
+// import useSearchResults from "@/lib/hooks/useSearchResults";
 
-function queryDashboard() {
-  return Dashboard.query({ page_size: 100 })
-    .then(({ results }) => results)
-    .catch(() => []);
+// async function queryDashboard(name) {
+//   return Dashboard.query({ page_size: 10, q: name })
+//     .then(({ results }) => results)
+//     .catch(() => []);
+// }
+let timeout;
+
+function fetch(value, callback) {
+  if (timeout) {
+    clearTimeout(timeout);
+    timeout = null;
+  }
+
+  // console.log(value);
+  function queryDashboard() {
+    return Dashboard.query({ page_size: 10, q: value })
+      .then(({ results }) => callback(results))
+      .catch(() => callback([]));
+  }
+
+  timeout = setTimeout(queryDashboard, 300);
 }
 
 function SubDashboardSelect(props) {
-  // const [searchTerm, setSearchTerm] = useState("");
-  const [doSearch, searchResults] = useSearchResults(queryDashboard, { initialResults: [] });
-  useEffect(() => {
-    doSearch();
-  }, [doSearch]);
+  const [searchTerm, setSearchTerm] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
+  // const [doSearch, searchResults] = useSearchResults(queryDashboard, { initialResults: [] });
 
   const placeholder = "Select sub-dashboard";
 
   const handleSelectSubDashboard = slug => {
+    setSearchTerm(slug);
     props.onChange(slug);
+  };
+
+  const onSearch = val => {
+    if (val) {
+      fetch(val, data => setSearchResults(data));
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  const onFocus = () => {
+    if (!searchTerm) {
+      fetch("", data => setSearchResults(data));
+    }
   };
 
   return (
@@ -36,10 +66,16 @@ function SubDashboardSelect(props) {
       <div className="form-group">
         {/* <label htmlFor="choose-visualization">Choose sub dashboard</label> */}
         <Select
+          showSearch
+          value={searchTerm}
           onChange={handleSelectSubDashboard}
           placeholder={placeholder}
+          defaultActiveFirstOption={false}
           id="choose-sub-dashboard"
           className="w-100"
+          filterOption={false}
+          onSearch={onSearch}
+          onFocus={onFocus}
           allowClear={true}>
           {searchResults &&
             searchResults.map(q => {
@@ -123,6 +159,7 @@ function AddWidgetDialog({ dialog, dashboard }) {
   const selectQuery = useCallback(
     queryId => {
       // Clear previously selected query (if any)
+      setSelectedSubDashboard(false);
       setSelectedQuery(null);
       setSelectedVisualization(null);
       setParameterMappings([]);
@@ -162,9 +199,7 @@ function AddWidgetDialog({ dialog, dashboard }) {
 
   const existingParams = dashboard.getParametersDefs();
 
-  // console.log(dashboard);
   const handleCheckBoxChange = e => {
-    // console.log(e.target.checked);
     setSelectedSubDashboard(e.target.checked);
     if (!e.target.checked) {
       setSubDashboardSlug("");
@@ -218,7 +253,13 @@ function AddWidgetDialog({ dialog, dashboard }) {
           </Checkbox>
         )}
 
-        {selectedSubDashboard && <SubDashboardSelect currentDashboard={dashboard.slug} onChange={selectSubDashboard} />}
+        {selectedSubDashboard && (
+          <SubDashboardSelect
+            value={subDashboardSlug}
+            currentDashboard={dashboard.slug}
+            onChange={selectSubDashboard}
+          />
+        )}
       </div>
     </Modal>
   );

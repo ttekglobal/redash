@@ -1,4 +1,4 @@
-import { isEmpty } from "lodash";
+import { isEmpty, map } from "lodash";
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
@@ -6,6 +6,7 @@ import cx from "classnames";
 import Button from "antd/lib/button";
 import Checkbox from "antd/lib/checkbox";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import DynamicComponent from "@/components/DynamicComponent";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
@@ -23,8 +24,8 @@ import DashboardHeader from "./components/DashboardHeader";
 
 import "./DashboardPage.less";
 
-function DashboardSettings({ dashboardOptions }) {
-  const { dashboard, updateDashboard } = dashboardOptions;
+function DashboardSettings({ dashboardConfiguration }) {
+  const { dashboard, updateDashboard } = dashboardConfiguration;
   return (
     <div className="m-b-10 p-15 bg-white tiled">
       <Checkbox
@@ -38,11 +39,11 @@ function DashboardSettings({ dashboardOptions }) {
 }
 
 DashboardSettings.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function AddWidgetContainer({ dashboardOptions, className, ...props }) {
-  const { showAddTextboxDialog, showAddWidgetDialog } = dashboardOptions;
+function AddWidgetContainer({ dashboardConfiguration, className, ...props }) {
+  const { showAddTextboxDialog, showAddWidgetDialog } = dashboardConfiguration;
   return (
     <div className={cx("add-widget-container", className)} {...props}>
       <h2>
@@ -65,12 +66,12 @@ function AddWidgetContainer({ dashboardOptions, className, ...props }) {
 }
 
 AddWidgetContainer.propTypes = {
-  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  dashboardConfiguration: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   className: PropTypes.string,
 };
 
 function DashboardComponent(props) {
-  const dashboardOptions = useDashboard(props.dashboard);
+  const dashboardConfiguration = useDashboard(props.dashboard);
   const {
     dashboard,
     filters,
@@ -80,14 +81,20 @@ function DashboardComponent(props) {
     removeWidget,
     saveDashboardLayout,
     globalParameters,
+    updateDashboard,
     refreshDashboard,
     refreshWidget,
     editingLayout,
     setGridDisabled,
-  } = dashboardOptions;
+  } = dashboardConfiguration;
 
   const [pageContainer, setPageContainer] = useState(null);
   const [bottomPanelStyles, setBottomPanelStyles] = useState({});
+  const onParametersEdit = parameters => {
+    const paramOrder = map(parameters, "name");
+    updateDashboard({ options: { globalParamOrder: paramOrder } });
+  };
+  const canView = dashboard.can_view;
 
   useEffect(() => {
     if (pageContainer) {
@@ -112,33 +119,63 @@ function DashboardComponent(props) {
 
   return (
     <div className="container" ref={setPageContainer} data-test={`DashboardId${dashboard.id}Container`}>
-      <DashboardHeader dashboardOptions={dashboardOptions} />
-      {!isEmpty(globalParameters) && (
-        <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
-          <Parameters parameters={globalParameters} onValuesChange={refreshDashboard} />
+      <DashboardHeader
+        dashboardConfiguration={dashboardConfiguration}
+        headerExtra={
+          <DynamicComponent
+            name="Dashboard.HeaderExtra"
+            dashboard={dashboard}
+            dashboardConfiguration={dashboardConfiguration}
+          />
+        }
+      />
+
+      {canView ? (
+        <div>
+          {!isEmpty(globalParameters) && (
+            <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
+              <Parameters
+                parameters={globalParameters}
+                onValuesChange={refreshDashboard}
+                sortable={editingLayout}
+                onParametersEdit={onParametersEdit}
+              />
+            </div>
+          )}
+          {!isEmpty(filters) && (
+            <div className="m-b-10 p-15 bg-white tiled" data-test="DashboardFilters">
+              <Filters filters={filters} onChange={setFilters} />
+            </div>
+          )}
+          {editingLayout && <DashboardSettings dashboardConfiguration={dashboardConfiguration} />}
+          <div id="dashboard-container">
+            <DashboardGrid
+              dashboard={dashboard}
+              widgets={dashboard.widgets}
+              filters={filters}
+              isEditing={editingLayout}
+              onLayoutChange={editingLayout ? saveDashboardLayout : () => {}}
+              onBreakpointChange={setGridDisabled}
+              onLoadWidget={loadWidget}
+              onRefreshWidget={refreshWidget}
+              onRemoveWidget={removeWidget}
+              onParameterMappingsChange={loadDashboard}
+            />
+          </div>
+        </div>
+      ) : (
+        <div class="no-permission t-body scrollbox">
+          <div class="text-center">
+            <h1>
+              <span class="zmdi zmdi-lock"></span>
+            </h1>
+            <p class="text-muted">This dashboard requires permission so you can not access to.</p>
+          </div>
         </div>
       )}
-      {!isEmpty(filters) && (
-        <div className="m-b-10 p-15 bg-white tiled" data-test="DashboardFilters">
-          <Filters filters={filters} onChange={setFilters} />
-        </div>
+      {editingLayout && (
+        <AddWidgetContainer dashboardConfiguration={dashboardConfiguration} style={bottomPanelStyles} />
       )}
-      {editingLayout && <DashboardSettings dashboardOptions={dashboardOptions} />}
-      <div id="dashboard-container">
-        <DashboardGrid
-          dashboard={dashboard}
-          widgets={dashboard.widgets}
-          filters={filters}
-          isEditing={editingLayout}
-          onLayoutChange={editingLayout ? saveDashboardLayout : () => {}}
-          onBreakpointChange={setGridDisabled}
-          onLoadWidget={loadWidget}
-          onRefreshWidget={refreshWidget}
-          onRemoveWidget={removeWidget}
-          onParameterMappingsChange={loadDashboard}
-        />
-      </div>
-      {editingLayout && <AddWidgetContainer dashboardOptions={dashboardOptions} style={bottomPanelStyles} />}
     </div>
   );
 }

@@ -173,12 +173,13 @@ class UsersList extends React.Component {
         }
       };
       CreateUserDialog.showModal()
-        .onClose(values =>
+        .onClose(values => {
           this.createUser(values).then(() => {
             this.props.controller.update();
             goToUsersList();
-          })
-        )
+          });
+        })
+
         .onDismiss(goToUsersList);
     }
   };

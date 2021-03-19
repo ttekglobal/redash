@@ -14,7 +14,7 @@ export default function EditableUserProfile(props) {
   }, [props.user]);
 
   return (
-    <div className="col-md-4 col-md-offset-4">
+    <div className="col-md-4">
       <img alt="Profile" src={user.profileImageUrl} className="profile__image" width="40" />
       <h3 className="profile__h3">{user.name}</h3>
       <hr />

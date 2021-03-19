@@ -13,6 +13,10 @@ const Group = {
   addDataSource: ({ id }, data) => axios.post(`api/groups/${id}/data_sources`, data),
   removeDataSource: ({ id, dataSourceId }) => axios.delete(`api/groups/${id}/data_sources/${dataSourceId}`),
   updateDataSource: ({ id, dataSourceId }, data) => axios.post(`api/groups/${id}/data_sources/${dataSourceId}`, data),
+  dashboards: ({ id }) => axios.get(`api/groups/${id}/dashboards`),
+  addDashboard: ({ id }, data) => axios.post(`api/groups/${id}/dashboards`, data),
+  removeDashboard: ({ id, dashboardId }) => axios.delete(`api/groups/${id}/dashboards/${dashboardId}`),
+  updateDashboard: ({ id, dashboardId }, data) => axios.post(`api/groups/${id}/dashboards/${dashboardId}`, data),
 };
 
 export default Group;

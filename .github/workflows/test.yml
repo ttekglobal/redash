@@ -2,7 +2,7 @@
 name: Tests & Build Redash
 on:
   push:
-    branches: "develop"
+    branches: "tinrpt_new"
 
 jobs:
   buidl-redash:
@@ -28,10 +28,10 @@ jobs:
       - name: Build Redash image
         run: |
           # cd packages/redash/
-          docker build --tag docker.pkg.github.com/ttekglobal/redash/ttekredash:dev-$IMAGE_VERSION .
+          docker build --tag docker.pkg.github.com/ttekglobal/redash/ttekredash_d9:dev-$IMAGE_VERSION .
 
       - name: Push Redash image
-        run: docker push docker.pkg.github.com/ttekglobal/redash/ttekredash:dev-$IMAGE_VERSION
+        run: docker push docker.pkg.github.com/ttekglobal/redash/ttekredash_d9:dev-$IMAGE_VERSION
   deploy-k8s:
     name: "Deployment"
     runs-on: ubuntu-latest
@@ -63,5 +63,5 @@ jobs:
 
       - name: Install / Upgrade App
         run: |
-          helm upgrade  --install ra --namespace=ra --values ./helm/values.yaml ./helm \
+          helm upgrade  --install rpd9 --namespace=rpd9 --values ./helm/values.yaml ./helm \
             --set image.tag=dev-$IMAGE_VERSION
