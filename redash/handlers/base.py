@@ -112,9 +112,7 @@ def dashboardPagination(items, page_size, page, serializer):
         pagingItems = []
     else:
         pagingItems = list(chunks(items,page_size))[page-1]
-    print(pagingItems)
     finalItems = serializer(pagingItems).serialize()
-    print(finalItems)
     return {"count": count, "page": page, "page_size": page_size, "results": finalItems}
 
 def chunks(lst, n):
