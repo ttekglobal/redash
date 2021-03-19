@@ -2,7 +2,7 @@
 name: Tests & Build Redash
 on:
   push:
-    branches: "tinrpt_new"
+    branches: "merge_orginal_repo"
 
 jobs:
   buidl-redash:
