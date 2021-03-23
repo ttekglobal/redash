@@ -3,7 +3,7 @@
 
 image:
   # image.repository -- Redash image name used for server and worker pods
-  repository: docker.pkg.github.com/ttekglobal/redash/ttekredash_d9
+  repository: docker.pkg.github.com/ttekglobal/redash/ttekredash_bv
   # image.tag -- Redash image [tag](https://hub.docker.com/r/redash/redash/tags)
   tag:
   #9.0.0-beta.b42121
@@ -263,7 +263,7 @@ ingress:
     # kubernetes.io/tls-acme: "true"
   # ingress.hosts -- Ingress resource hostnames and path mappings
   hosts:
-    - host: rad9.ttekglobal.com
+    - host: bvreport.ttekglobal.com
       paths:
         - /
     # - host: report.ttekglobal.com
@@ -409,7 +409,7 @@ scheduledWorker:
   podAnnotations: {}
 
 # externalPostgreSQL -- External PostgreSQL configuration. To use an external PostgreSQL instead of the automatically deployed postgresql chart: set postgresql.enabled to false then uncomment and configure the externalPostgreSQL connection URL.
-externalPostgreSQL: postgres://doadmin:ylwv8e1g2vhamzoo@vts-dev-do-user-4247043-0.a.db.ondigitalocean.com:25060/reportd9?sslmode=require
+externalPostgreSQL: postgres://doadmin:ylwv8e1g2vhamzoo@vts-dev-do-user-4247043-0.a.db.ondigitalocean.com:25060/bvreport?sslmode=require
 # postgresql://doadmin:ylwv8e1g2vhamzoo@vts-dev-do-user-4247043-0.a.db.ondigitalocean.com:25060/report?ssl=true
 
 # Configuration values for the postgresql dependency. This PostgreSQL instance is used by default for all Redash state storage [ref](https://github.com/kubernetes/charts/blob/master/stable/postgresql/README.md)
