@@ -112,6 +112,7 @@ class QueryRecentResource(BaseResource):
             .order_by(models.Query.updated_at.desc())
             .limit(10)
         )
+
         return QuerySerializer(
             results, with_last_modified_by=False, with_user=False
         ).serialize()
@@ -119,18 +120,27 @@ class QueryRecentResource(BaseResource):
 
 class BaseQueryListResource(BaseResource):
     def get_queries(self, search_term):
-        if search_term:
-            results = models.Query.search(
-                search_term,
-                self.current_user.group_ids,
-                self.current_user.id,
-                include_drafts=True,
-                multi_byte_search=current_org.get_setting("multi_byte_search_enabled"),
-            )
+        # print('--------------')
+        # print(self.current_user.group_ids)
+        if (1 in self.current_user.group_ids):
+            if search_term:
+                results = models.Query.search(
+                    search_term,
+                    self.current_user.group_ids,
+                    self.current_user.id,
+                    include_drafts=True,
+                    multi_byte_search=current_org.get_setting("multi_byte_search_enabled"),
+                )
+            else:
+                results = models.Query.all_queries(
+                    self.current_user.group_ids, self.current_user.id, include_drafts=True
+                )
         else:
-            results = models.Query.all_queries(
-                self.current_user.group_ids, self.current_user.id, include_drafts=True
-            )
+            if search_term:
+                results = models.Query.search_by_user(search_term, self.current_user)
+            else:
+                results = models.Query.by_user(self.current_user)
+
         return filter_by_tags(results, models.Query.tags)
 
     @require_permission("view_query")
@@ -168,6 +178,9 @@ class BaseQueryListResource(BaseResource):
             with_stats=True,
             with_last_modified_by=False,
         )
+
+        print('--------queries ----\n\n\n\n')
+        print(queries)
 
         if search_term:
             self.record_event(
@@ -262,6 +275,9 @@ class QueryListResource(BaseQueryListResource):
         self.record_event(
             {"action": "create", "object_id": query.id, "object_type": "query"}
         )
+
+        print('---------QueryListResource ---------')
+        print(QueryListResource)
 
         return QuerySerializer(query, with_visualizations=True).serialize()
 
@@ -365,6 +381,12 @@ class QueryResource(BaseResource):
 
         if "tags" in query_def:
             query_def["tags"] = [tag for tag in query_def["tags"] if tag]
+
+        if "data_source_id" in query_def:
+            data_source = models.DataSource.get_by_id_and_org(
+                query_def["data_source_id"], self.current_org
+            )
+            require_access(data_source, self.current_user, not_view_only)
 
         query_def["last_modified_by"] = self.current_user
         query_def["changed_by"] = self.current_user
@@ -488,9 +510,9 @@ class QueryRefreshResource(BaseResource):
 
         parameter_values = collect_parameters_from_request(request.args)
         parameterized_query = ParameterizedQuery(query.query_text, org=self.current_org)
-
+        should_apply_auto_limit = query.options.get("apply_auto_limit", False)
         return run_query(
-            parameterized_query, parameter_values, query.data_source, query.id
+            parameterized_query, parameter_values, query.data_source, query.id, should_apply_auto_limit
         )
 
 

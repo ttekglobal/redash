@@ -5,6 +5,8 @@ venv/
 .coveralls.yml
 .idea
 *.pyc
+.nyc_output
+coverage
 .coverage
 coverage.xml
 client/dist
@@ -25,3 +27,5 @@ npm-debug.log
 
 client/cypress/screenshots
 client/cypress/videos
+redash_dev
+redash/tasks/worker.py

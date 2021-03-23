@@ -62,7 +62,7 @@ export function Menu({ items, selected }) {
           <AntdMenu.Item key={item.key} className="m-0">
             <Link href={item.href}>
               {isString(item.icon) && item.icon !== "" && (
-                <span className="btn-favourite m-r-5">
+                <span className="btn-favorite m-r-5">
                   <i className={item.icon} aria-hidden="true" />
                 </span>
               )}
@@ -100,7 +100,7 @@ Menu.defaultProps = {
 
 export function MenuIcon({ icon }) {
   return (
-    <span className="btn-favourite m-r-5">
+    <span className="btn-favorite m-r-5">
       <i className={icon} aria-hidden="true" />
     </span>
   );
@@ -132,13 +132,13 @@ ProfileImage.propTypes = {
     Tags
  */
 
-export function Tags({ url, onChange }) {
+export function Tags({ url, onChange, showUnselectAll }) {
   if (url === "") {
     return null;
   }
   return (
     <div className="m-b-10">
-      <TagsList tagsUrl={url} onUpdate={onChange} />
+      <TagsList tagsUrl={url} onUpdate={onChange} showUnselectAll={showUnselectAll} />
     </div>
   );
 }
@@ -146,4 +146,6 @@ export function Tags({ url, onChange }) {
 Tags.propTypes = {
   url: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
+  showUnselectAll: PropTypes.bool,
+  unselectAllButtonTitle: PropTypes.string,
 };

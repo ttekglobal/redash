@@ -30,7 +30,7 @@ from redash.query_runner import (
     TYPE_BOOLEAN,
     TYPE_DATE,
     TYPE_DATETIME,
-)
+    BaseQueryRunner)
 from redash.utils import (
     generate_token,
     json_dumps,
@@ -38,7 +38,7 @@ from redash.utils import (
     mustache_render,
     base_url,
     sentry,
-)
+    gen_query_hash)
 from redash.utils.configuration import ConfigurationContainer
 from redash.models.parameterized_query import ParameterizedQuery
 
@@ -55,7 +55,7 @@ from .types import (
     pseudo_json_cast_property
 )
 from .users import AccessPermission, AnonymousUser, ApiUser, Group, User  # noqa
-
+from sqlalchemy.orm import aliased
 logger = logging.getLogger(__name__)
 
 
@@ -122,6 +122,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
             "syntax": self.query_runner.syntax,
             "paused": self.paused,
             "pause_reason": self.pause_reason,
+            "supports_auto_limit": self.query_runner.supports_auto_limit
         }
 
         if all:
@@ -358,7 +359,7 @@ class QueryResult(db.Model, QueryResultPersistence, BelongsToOrgMixin):
 
     @classmethod
     def get_latest(cls, data_source, query, max_age=0):
-        query_hash = utils.gen_query_hash(query)
+        query_hash = gen_query_hash(query)
 
         if max_age == -1:
             query = cls.query.filter(
@@ -864,11 +865,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         api_keys = db.session.execute(query, {"id": self.id}).fetchall()
         return [api_key[0] for api_key in api_keys]
 
+    def update_query_hash(self):
+        should_apply_auto_limit = self.options.get("apply_auto_limit", False) if self.options else False
+        query_runner = self.data_source.query_runner if self.data_source else BaseQueryRunner({})
+        self.query_hash = query_runner.gen_query_hash(self.query_text, should_apply_auto_limit)
 
-@listens_for(Query.query_text, "set")
-def gen_query_hash(target, val, oldval, initiator):
-    target.query_hash = utils.gen_query_hash(val)
-    target.schedule_failures = 0
+
+@listens_for(Query, "before_insert")
+@listens_for(Query, "before_update")
+def receive_before_insert_update(mapper, connection, target):
+    target.update_query_hash()
 
 
 @listens_for(Query.user_id, "set")
@@ -1090,8 +1096,14 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     widgets = db.relationship("Widget", backref="dashboard", lazy="dynamic")
+    dashboard_groups = db.relationship(
+        "DashboardGroup", back_populates="dashboard", cascade="all"
+    )
     tags = Column(
         "tags", MutableList.as_mutable(postgresql.ARRAY(db.Unicode)), nullable=True
+    )
+    options = Column(
+        MutableDict.as_mutable(postgresql.JSON), server_default="{}", default={}
     )
 
     __tablename__ = "dashboards"
@@ -1100,40 +1112,109 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def __str__(self):
         return "%s=%s" % (self.id, self.name)
 
+    def to_dict(self, all=False, with_permissions_for=None):
+        d = {
+            "id": self.id,
+            "name": self.name,
+            "tags": self.tags,
+            "type": 'google_analytics'
+        }
+
+        if all:
+            schema = None
+            self.options.set_schema(schema)
+            d["options"] = self.options.to_dict(mask_secrets=True)
+            d["queue_name"] = self.queue_name
+            d["scheduled_queue_name"] = self.scheduled_queue_name
+            d["groups"] = self.groups
+
+        if with_permissions_for is not None:
+            d["view_only"] = (
+                db.session.query(DashboardGroup.view_only)
+                .filter(
+                    DashboardGroup.group == with_permissions_for,
+                    DashboardGroup.dashboard == self,
+                )
+                .one()[0]
+            )
+
+        return d
+
     @property
     def name_as_slug(self):
         return utils.slugify(self.name)
 
     @classmethod
     def all(cls, org, group_ids, user_id):
-        query = (
-            Dashboard.query.options(
-                joinedload(Dashboard.user).load_only(
-                    "id", "name", "_profile_image_url", "email"
+        if 1 in group_ids:
+            query = (
+                Dashboard.query.options(
+                    joinedload(Dashboard.user).load_only(
+                        "id", "name", "_profile_image_url", "email"
+                    )
+                )
+                .outerjoin(Widget)
+                .outerjoin(Visualization)
+                .outerjoin(Query)
+                .outerjoin(
+                    DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
+                )
+                .filter(
+                    Dashboard.is_archived == False,
+                    (
+                        DataSourceGroup.group_id.in_(group_ids)
+                        | (Dashboard.user_id == user_id)
+                    ),
+                    Dashboard.org == org,
                 )
             )
-            .outerjoin(Widget)
-            .outerjoin(Visualization)
-            .outerjoin(Query)
-            .outerjoin(
-                DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
-            )
-            .filter(
-                Dashboard.is_archived == False,
-                (
-                    DataSourceGroup.group_id.in_(group_ids)
-                    | (Dashboard.user_id == user_id)
-                ),
-                Dashboard.org == org,
-            )
-            .distinct()
-        )
+        else:
+            query = (
+                Dashboard.query.options(
+                    joinedload(Dashboard.user).load_only(
+                        "id", "name", "_profile_image_url", "email"
+                    )
+                )
+                .outerjoin(Widget)
+                .outerjoin(Visualization)
+                .outerjoin(Query)
+                .outerjoin(
+                    DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id
+                )
+                .outerjoin(DashboardGroup)
+                .filter(
+                    Dashboard.is_archived == False,
+                    (
+                        # DataSourceGroup.group_id.in_(group_ids) |
+                        DashboardGroup.group_id.in_(group_ids)
+                        | (Dashboard.user_id == user_id)
 
+                    ),
+                    (
+                        DataSourceGroup.group_id.in_(group_ids)
+                        | (Dashboard.user_id == user_id)
+                    ),
+                    Dashboard.org == org
+                )
+            )
         query = query.filter(
             or_(Dashboard.user_id == user_id, Dashboard.is_draft == False)
         )
-
         return query
+
+    @classmethod
+    def create_with_group(cls, *args, **kwargs):
+        dashboard = cls(*args, **kwargs)
+        dashboard_group = DashboardGroup(
+            dashboard=dashboard, group=dashboard.org.default_group
+        )
+        db.session.add_all([dashboard, dashboard_group])
+        return dashboard
+
+    @property
+    def groups(self):
+        groups = DashboardGroup.query.filter(DashboardGroup.dashboard == self)
+        return dict([(group.group_id, group.view_only) for group in groups])
 
     @classmethod
     def search(cls, org, groups_ids, user_id, search_term):
@@ -1141,6 +1222,10 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         return cls.all(org, groups_ids, user_id).filter(
             cls.name.ilike("%{}%".format(search_term))
         )
+
+    @classmethod
+    def search_by_user(cls, term, user, limit=None):
+        return cls.by_user(user).filter(cls.name.ilike("%{}%".format(term))).limit(limit)
 
     @classmethod
     def all_tags(cls, org, user):
@@ -1172,8 +1257,31 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         ).filter(Favorite.user_id == user.id)
 
     @classmethod
+    def by_user(cls, user):
+        return cls.all(user.org, user.group_ids, user.id).filter(Dashboard.user == user)
+
+    @classmethod
     def get_by_slug_and_org(cls, slug, org):
         return cls.query.filter(cls.slug == slug, cls.org == org).one()
+
+    def add_group(self, group, view_only=False):
+        dg = DashboardGroup(group=group, dashboard=self, view_only=view_only)
+        db.session.add(dg)
+        return dg
+
+    def remove_group(self, group):
+        DashboardGroup.query.filter(
+            DashboardGroup.group == group, DashboardGroup.dashboard == self
+        ).delete()
+        db.session.commit()
+
+    def update_group_permission(self, group, view_only):
+        dg = DashboardGroup.query.filter(
+            DashboardGroup.group == group, DashboardGroup.dashboard == self
+        ).one()
+        dg.view_only = view_only
+        db.session.add(dg)
+        return dg
 
     @hybrid_property
     def lowercase_name(self):
@@ -1184,6 +1292,19 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def lowercase_name(cls):
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
+
+
+@generic_repr("id", "dashboard_id", "group_id", "view_only")
+class DashboardGroup(db.Model):
+    # XXX drop id, use dashboard/group as PK
+    id = primary_key("DashboardGroup")
+    dashboard_id = Column(key_type("Dashboard"), db.ForeignKey("dashboards.id"))
+    dashboard = db.relationship(Dashboard, back_populates="dashboard_groups")
+    group_id = Column(key_type("Group"), db.ForeignKey("groups.id"))
+    group = db.relationship(Group, back_populates="dashboards")
+    view_only = Column(db.Boolean, default=False)
+
+    __tablename__ = "dashboard_groups"
 
 
 @generic_repr("id", "name", "type", "query_id")
@@ -1345,7 +1466,14 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
     user = db.relationship(User, backref="notification_destinations")
     name = Column(db.String(255))
     type = Column(db.String(255))
-    options = Column(ConfigurationContainer.as_mutable(Configuration))
+    options = Column(
+        "encrypted_options",
+        ConfigurationContainer.as_mutable(
+            EncryptedConfiguration(
+                db.Text, settings.DATASOURCE_SECRET_KEY, FernetEngine
+            )
+        ),
+    )
     created_at = Column(db.DateTime(True), default=db.func.now())
 
     __tablename__ = "notification_destinations"
