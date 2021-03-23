@@ -14,7 +14,7 @@ jobs:
 
       - name: Define variables
         env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: "true"
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         run: |
           export GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | awk '{print substr($0,0,7)}')
           echo "::set-env name=IMAGE_VERSION::$GITHUB_SHA_SHORT"
@@ -50,7 +50,11 @@ jobs:
 
       - name: Define variables
         env:
+<<<<<<< HEAD
           ACTIONS_ALLOW_UNSECURE_COMMANDS: "true"
+=======
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+>>>>>>> 7eee2bc8... change branch deployment ra
         run: |
           export GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | awk '{print substr($0,0,7)}')
           echo "::set-env name=IMAGE_VERSION::$GITHUB_SHA_SHORT"
