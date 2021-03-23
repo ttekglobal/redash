@@ -13,8 +13,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Define variables
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         run: |
           export GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | awk '{print substr($0,0,7)}')
           echo "::set-env name=IMAGE_VERSION::$GITHUB_SHA_SHORT"
@@ -28,10 +26,10 @@ jobs:
       - name: Build Redash image
         run: |
           # cd packages/redash/
-          docker build --tag docker.pkg.github.com/ttekglobal/redash/ttekredash_d9:dev-$IMAGE_VERSION .
+          docker build --tag docker.pkg.github.com/ttekglobal/redash/ttekredash:dev-$IMAGE_VERSION .
 
       - name: Push Redash image
-        run: docker push docker.pkg.github.com/ttekglobal/redash/ttekredash_d9:dev-$IMAGE_VERSION
+        run: docker push docker.pkg.github.com/ttekglobal/redash/ttekredash:dev-$IMAGE_VERSION
   deploy-k8s:
     name: "Deployment"
     runs-on: ubuntu-latest
@@ -41,7 +39,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup kubectl
-        uses: matootie/dokube@v1.3.4
+        uses: matootie/dokube@v1.3.1
         with:
           personalAccessToken:  ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: ttek
@@ -49,8 +47,6 @@ jobs:
           namespace: vts-dev
 
       - name: Define variables
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         run: |
           export GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | awk '{print substr($0,0,7)}')
           echo "::set-env name=IMAGE_VERSION::$GITHUB_SHA_SHORT"
@@ -63,5 +59,5 @@ jobs:
 
       - name: Install / Upgrade App
         run: |
-          helm upgrade  --install rpd9 --namespace=rpd9 --values ./helm/values.yaml ./helm \
+          helm upgrade  --install ra --namespace=ra --values ./helm/values.yaml ./helm \
             --set image.tag=dev-$IMAGE_VERSION
