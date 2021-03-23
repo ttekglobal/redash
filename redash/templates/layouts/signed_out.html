@@ -46,7 +46,7 @@
         text-align: center;
       }
 
-      button[type="submit"] {
+      button {
         text-transform: uppercase;
         letter-spacing: 0.0892857143em;
         border-radius: 4px;
@@ -63,21 +63,25 @@
         width: 100%;
       }
 
-      button[type="submit"]:focus {
+      button:focus {
         outline: none;
+      }
+
+      button:hover {
+        background-color: #344996;
       }
 
       form label {
         color: #fff;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
         width: 120px;
         display: block;
         font-size: 15px;
       }
 
       form label[for="email"] {
-        display: inline-block;
-        width: fit-content;
+        width: 280px;
+        line-height: 20px;
       }
 
       form input {
@@ -88,7 +92,7 @@
         color: #fff !important;
         width: 270px;
         border: none;
-        padding: 0 20px;
+        padding: 0 12px;
       }
 
       form input:hover,
@@ -106,12 +110,12 @@
         border-color: #415fcc;
       }
       a {
-        color: #fff;
+        color: #ffffff80;
         background-color: transparent !important;
         padding: 0;
       }
       a:hover {
-        color: #415fcc !important;
+        color: #fff !important;
         background-color: transparent !important;
       }
       .footer {
@@ -188,6 +192,36 @@
         padding: 5px 12px;
         /* border-radius: 2px; */
         margin-bottom: 20px;
+      }
+
+      .login-button {
+        text-transform: uppercase;
+        letter-spacing: 0.0892857143em;
+        border-radius: 4px;
+        background-color: #26387b !important;
+        height: 40px;
+        font-size: 16px;
+        box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+          0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+        border: none;
+        color: #fff;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 20px;
+        width: 100%;
+        display: block;
+        line-height: 40px;
+        text-decoration: none;
+      }
+
+      .login-button:hover {
+        color: #fff !important;
+        background-color: #344996 !important;
+      }
+
+      hr {
+        opacity: 0.12;
+        margin: 20px 0;
       }
     </style>
 
