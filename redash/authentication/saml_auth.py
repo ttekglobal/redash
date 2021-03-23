@@ -114,7 +114,7 @@ def idp_initiated(org_slug=None):
 
     print("------------------authn_response----------------\n")
     print(authn_response)
-    logger.info(authn_response)
+    # logger.info(authn_response)
     print("------------------end authn_response------------\n")
 
     authn_response.get_identity()
@@ -124,6 +124,10 @@ def idp_initiated(org_slug=None):
         authn_response.ava["FirstName"][0],
         authn_response.ava["LastName"][0],
     )
+
+    print("------------------user_info----------------\n")
+    print(user_info)
+    print("------------------end user_info------------\n")
 
     # This is what as known as "Just In Time (JIT) provisioning".
     # What that means is that, if a user in a SAML assertion
