@@ -12,7 +12,7 @@ COPY client /frontend/client
 COPY webpack.config.js /frontend/
 RUN if [ "x$skip_frontend_build" = "x" ] ; then npm run build; else mkdir -p /frontend/client/dist && touch /frontend/client/dist/multi_org.html && touch /frontend/client/dist/index.html; fi
 FROM python:3.7-slim
-
+RUN pip install pip==20.2.4 
 EXPOSE 5000
 
 # Controls whether to install extra dependencies needed for all data sources.
