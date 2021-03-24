@@ -113,7 +113,7 @@ def idp_initiated(org_slug=None):
         return redirect(url_for("redash.login", org_slug=org_slug))
 
     print("------------------authn_response----------------\n")
-    print(authn_response.ava)
+    print(authn_response)
     # logger.info(authn_response)
     print("------------------end authn_response------------\n")
 
