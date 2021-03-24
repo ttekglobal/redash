@@ -93,7 +93,7 @@ def idp_initiated(org_slug=None):
     # What that means is that, if a user in a SAML assertion
     # isn't in the user store, we create that user first, then log them in
     user = create_and_login_user(current_org, name, email)
-    update_user_groups(user, authn_response.ava['http://schemas.xmlsoap.org/claims/Group'])
+    update_user_groups(user, authn_response.ava['Group'])
 
     if user is None:
         return logout_and_redirect_to_index()
