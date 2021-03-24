@@ -2,7 +2,7 @@
 name: Tests & Build Redash
 on:
   push:
-    branches: "develop"
+    branches: "tinrpt_3173e00fb3"
 
 jobs:
   buidl-redash:
