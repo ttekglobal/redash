@@ -4,17 +4,13 @@ from redash import settings
 from redash.authentication import create_and_login_user, logout_and_redirect_to_index
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule
-from redash.utils import mustache_render
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity
 from saml2.client import Saml2Client
 from saml2.config import Config as Saml2Config
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
-from saml2.sigver import get_xmlsec_binary
-
 
 logger = logging.getLogger("saml_auth")
 blueprint = Blueprint("saml_auth", __name__)
-inline_metadata_template = """<?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor entityID="{{entity_id}}" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"><md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:KeyDescriptor use="signing"><ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:X509Data><ds:X509Certificate>{{x509_cert}}</ds:X509Certificate></ds:X509Data></ds:KeyInfo></md:KeyDescriptor><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="{{sso_url}}"/><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="{{sso_url}}"/></md:IDPSSODescriptor></md:EntityDescriptor>"""
 
 
 def get_saml_client(org):
@@ -23,20 +19,12 @@ def get_saml_client(org):
 
     The configuration is a hash for use by saml2.config.Config
     """
-
-    saml_type = org.get_setting("auth_saml_type")
-    entity_id = org.get_setting("auth_saml_entity_id")
-    sso_url = org.get_setting("auth_saml_sso_url")
-    x509_cert = org.get_setting("auth_saml_x509_cert")
     metadata_url = org.get_setting("auth_saml_metadata_url")
+    entity_id = org.get_setting("auth_saml_entity_id")
 
     if settings.SAML_SCHEME_OVERRIDE:
-        acs_url = url_for(
-            "saml_auth.idp_initiated",
-            org_slug=org.slug,
-            _external=True,
-            _scheme=settings.SAML_SCHEME_OVERRIDE,
-        )
+        acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True,
+                          _scheme=settings.SAML_SCHEME_OVERRIDE)
     else:
         acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True)
 
@@ -63,30 +51,8 @@ def get_saml_client(org):
         },
     }
 
-    if settings.SAML_ENCRYPTION_ENABLED:
-        encryption_dict = {
-            "xmlsec_binary": get_xmlsec_binary(),
-            "encryption_keypairs": [
-                {
-                    "key_file": settings.SAML_ENCRYPTION_PEM_PATH,
-                    "cert_file": settings.SAML_ENCRYPTION_CERT_PATH,
-                }
-            ],
-        }
-        saml_settings.update(encryption_dict)
-
-    if saml_type is not None and saml_type == "static":
-        metadata_inline = mustache_render(
-            inline_metadata_template,
-            entity_id=entity_id,
-            x509_cert=x509_cert,
-            sso_url=sso_url,
-        )
-
-        saml_settings["metadata"] = {"inline": [metadata_inline]}
-
-    if acs_url is not None and acs_url != "":
-        saml_settings["entityid"] = acs_url
+    if entity_id is not None and entity_id != "":
+        saml_settings["entityid"] = entity_id
 
     sp_config = Saml2Config()
     sp_config.load(saml_settings)
@@ -112,11 +78,6 @@ def idp_initiated(org_slug=None):
         flash("SAML login failed. Please try again later.")
         return redirect(url_for("redash.login", org_slug=org_slug))
 
-    print("------------------authn_response----------------\n")
-    print(authn_response.ava)
-    # logger.info(authn_response)
-    print("------------------end authn_response------------\n")
-
     authn_response.get_identity()
     user_info = authn_response.get_subject()
     email = user_info.text
@@ -125,10 +86,10 @@ def idp_initiated(org_slug=None):
         authn_response.ava["LastName"][0],
     )
 
-    print("------------------user_info----------------\n")
+    print('-----\n\n----')
+    print(authn_response.ava)
     print(user_info)
-    print("------------------end user_info------------\n")
-
+    print('-----\n\n----')
     # This is what as known as "Just In Time (JIT) provisioning".
     # What that means is that, if a user in a SAML assertion
     # isn't in the user store, we create that user first, then log them in
