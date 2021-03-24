@@ -2,7 +2,7 @@
 name: Tests & Build Redash
 on:
   push:
-    branches: "develop_ra"
+    branches: "dev_ra"
 
 jobs:
   buidl-redash:
