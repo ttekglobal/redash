@@ -113,8 +113,8 @@ def idp_initiated(org_slug=None):
         return redirect(url_for("redash.login", org_slug=org_slug))
 
     print('--------------authn_response-------------\n')
-    print(authn_response)
-    logger.info(authn_response)
+    print(authn_response.ava)
+    logger.info(authn_response.ava)
     print('--------------authn_response-------------\n')
 
     authn_response.get_identity()
@@ -124,6 +124,9 @@ def idp_initiated(org_slug=None):
         authn_response.ava["FirstName"][0],
         authn_response.ava["LastName"][0],
     )
+
+    print('-------userinfo-----')
+    print(user_info)
 
     # This is what as known as "Just In Time (JIT) provisioning".
     # What that means is that, if a user in a SAML assertion
