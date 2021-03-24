@@ -98,6 +98,7 @@ def idp_initiated(org_slug=None):
     if "Group" in authn_response.ava:
         update_user_groups(user, authn_response.ava['Group'])
     else:
+        update_user_groups(user, authn_response.ava['http://schemas.xmlsoap.org/claims/Group'])
         logger.error("Group is not existed")
 
     if user is None:
