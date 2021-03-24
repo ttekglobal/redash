@@ -179,8 +179,8 @@ class BaseQueryListResource(BaseResource):
             with_last_modified_by=False,
         )
 
-        print('--------queries ----\n\n\n\n')
-        print(queries)
+        # print('--------queries ----\n\n\n\n')
+        # print(queries)
 
         if search_term:
             self.record_event(

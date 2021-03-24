@@ -86,9 +86,9 @@ def idp_initiated(org_slug=None):
         authn_response.ava["LastName"][0],
     )
 
-    print('-----\n\n')
-    print(authn_response.ava['http://schemas.xmlsoap.org/claims/Group'])
-    print('-----\n\n')
+    # print('-----\n\n')
+    # print(authn_response.ava['http://schemas.xmlsoap.org/claims/Group'])
+    # print('-----\n\n')
     # This is what as known as "Just In Time (JIT) provisioning".
     # What that means is that, if a user in a SAML assertion
     # isn't in the user store, we create that user first, then log them in
