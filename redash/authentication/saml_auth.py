@@ -114,7 +114,7 @@ def idp_initiated(org_slug=None):
 
     print("------------------authn_response----------------\n")
     print(authn_response.ava)
-    # logger.info(authn_response)
+    logger.info(authn_response)
     print("------------------end authn_response------------\n")
 
     authn_response.get_identity()
