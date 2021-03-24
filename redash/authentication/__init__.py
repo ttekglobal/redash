@@ -312,7 +312,7 @@ def update_user_groups(user, idpGroups):
 
     # Update user's groups
     allGroups = idpNewGroupIds + idpGroupIds
-    print(allGroups)
+    # print(allGroups)
     user.group_ids = allGroups
     models.db.session.commit()
 
