@@ -1185,7 +1185,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                 .filter(
                     Dashboard.is_archived == False,
                     (
-                        # DataSourceGroup.group_id.in_(group_ids) |
                         DashboardGroup.group_id.in_(group_ids)
                         | (Dashboard.user_id == user_id)
 

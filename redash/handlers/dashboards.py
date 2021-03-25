@@ -116,12 +116,6 @@ class DashboardAllResource(BaseResource):
     def get(self):
         """
         Lists all accessible dashboards.
-
-        :qparam number page_size: Number of queries to return per page
-        :qparam number page: Page number to retrieve
-        :qparam number order: Name of column to order by
-        :qparam number q: Full text search term
-
         Responds with an array of :ref:`dashboard <dashboard-response-label>`
         objects.
         """
@@ -136,7 +130,7 @@ class DashboardAllResource(BaseResource):
                 ordered_results = order_results(results)
                 ordered_results = ordered_results.all()
 
-                dashboards = DashboardSerializer(ordered_results).serialize()
+                dashboards = DashboardSerializer(ordered_results, with_widgets=True).serialize()
                 return {"count": len(ordered_results), "items": dashboards}
             except models.NoResultFound:
                 return 'Wrong Email'
