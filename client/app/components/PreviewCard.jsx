@@ -78,6 +78,20 @@ export function DataSourcePreviewCard({ dataSource, withLink, children, ...props
   );
 }
 
+export function DashboardPreviewCard({ dashboard, withLink, children, ...props }) {
+  const imageUrl = `static/images/db-logos/${dashboard.type}.png`;
+  const title = withLink ? (
+    <Link href={"dashboards/" + dashboard.id + "-" + dashboard.slug}>{dashboard.name}</Link>
+  ) : (
+    dashboard.name
+  );
+  return (
+    <PreviewCard {...props} imageUrl={imageUrl} title={title}>
+      {children}
+    </PreviewCard>
+  );
+}
+
 DataSourcePreviewCard.propTypes = {
   dataSource: PropTypes.shape({
     name: PropTypes.string.isRequired,
