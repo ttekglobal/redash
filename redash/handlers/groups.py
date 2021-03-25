@@ -269,8 +269,6 @@ class GroupDashboardListResource(BaseResource):
             {"action": "list", "object_id": group_id, "object_type": "group"}
         )
 
-        print('----------------')
-        print(dashboards)
         return [ds.to_dict(with_permissions_for=group) for ds in dashboards]
         # return dashboards
 
