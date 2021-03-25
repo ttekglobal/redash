@@ -106,8 +106,8 @@ REMEMBER_COOKIE_HTTPONLY = parse_boolean(
 # on the specific deployment.
 # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
 # for more information.
-FRAME_OPTIONS = os.environ.get("REDASH_FRAME_OPTIONS", "deny")
-FRAME_OPTIONS_ALLOW_FROM = os.environ.get("REDASH_FRAME_OPTIONS_ALLOW_FROM", "")
+FRAME_OPTIONS = os.environ.get("REDASH_FRAME_OPTIONS", "")
+FRAME_OPTIONS_ALLOW_FROM = os.environ.get("REDASH_FRAME_OPTIONS_ALLOW_FROM", "*")
 
 # Whether and how to send Strict-Transport-Security response headers.
 # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
@@ -130,7 +130,7 @@ HSTS_INCLUDE_SUBDOMAINS = parse_boolean(
 # for more information. E.g.:
 CONTENT_SECURITY_POLICY = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY",
-    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data: blob:; object-src 'none'; frame-ancestors 'none'; frame-src redash.io;",
+    "",
 )
 CONTENT_SECURITY_POLICY_REPORT_URI = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY_REPORT_URI", ""
@@ -147,7 +147,7 @@ CONTENT_SECURITY_POLICY_NONCE_IN = array_from_string(
 # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
 # for more information.
 REFERRER_POLICY = os.environ.get(
-    "REDASH_REFERRER_POLICY", "strict-origin-when-cross-origin"
+    "REDASH_REFERRER_POLICY", "unsafe-url"
 )
 # Whether and how to send Feature-Policy response headers. Defaults to
 # an empty value.
