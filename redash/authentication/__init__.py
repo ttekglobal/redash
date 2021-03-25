@@ -290,14 +290,15 @@ def create_and_login_user(org, name, email, picture=None):
 
     return user_object
 
+
 def update_user_groups(user, idpGroups):
-    idpGroups = ['Administrator','Supervisor','admin', 'default']
-    idpGroupsInfo = models.Group.find_by_name(current_org, idpGroups) # Existed groups
-    idpGroupIds = [g.id for g in idpGroupsInfo] # Existed group ids
-    idpGroupNms = [g.name for g in idpGroupsInfo] # Existed group names
-    idpNewGroupNms = [] # New group names
-    idpNewGroupIds = [] # New group ids
-   
+    # idpGroups = ['Administrator','Supervisor','admin', 'default']
+    idpGroupsInfo = models.Group.find_by_name(current_org, idpGroups)  # Existed groups
+    idpGroupIds = [g.id for g in idpGroupsInfo]  # Existed group ids
+    idpGroupNms = [g.name for g in idpGroupsInfo]  # Existed group names
+    idpNewGroupNms = []  # New group names
+    idpNewGroupIds = []  # New group ids
+
     for group in idpGroups:
         if group not in idpGroupNms:
             idpNewGroupNms.append(group)
@@ -311,10 +312,10 @@ def update_user_groups(user, idpGroups):
 
     # Update user's groups
     allGroups = idpNewGroupIds + idpGroupIds
-    print(allGroups)
+    # print(allGroups)
     user.group_ids = allGroups
     models.db.session.commit()
-    
+
 
 def get_next_path(unsafe_next_path):
     if not unsafe_next_path:
