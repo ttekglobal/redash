@@ -110,6 +110,32 @@ class DashboardListResource(BaseResource):
         models.db.session.commit()
         return DashboardSerializer(dashboard).serialize()
 
+class DashboardAllResource(BaseResource):
+      
+    @require_permission("list_dashboards")
+    def get(self):
+        """
+        Lists all accessible dashboards.
+        Responds with an array of :ref:`dashboard <dashboard-response-label>`
+        objects.
+        """
+        email = request.args.get("email")
+        if email:
+            try:
+                user = models.User.get_by_email_and_org(email ,self.current_org)
+                results = models.Dashboard.all(
+                    self.current_org, user.group_ids, user.id
+                )
+
+                ordered_results = order_results(results)
+                ordered_results = ordered_results.all()
+
+                dashboards = DashboardSerializer(ordered_results, with_widgets=True).serialize()
+                return {"count": len(ordered_results), "items": dashboards}
+            except models.NoResultFound:
+                return 'Wrong Email'
+        else:
+             return 'Missing Email'
 
 class MyDashboardsResource(BaseResource):
     @require_permission("list_dashboards")
