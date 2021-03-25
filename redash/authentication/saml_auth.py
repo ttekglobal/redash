@@ -95,18 +95,17 @@ def idp_initiated(org_slug=None):
     # isn't in the user store, we create that user first, then log them in
     user = create_and_login_user(current_org, name, email)
 
-    if "Group" in authn_response.ava:
-        update_user_groups(user, authn_response.ava['Group'])
+    if "RedashGroups" in authn_response.ava:
+        update_user_groups(user, authn_response.ava['RedashGroups'])
     else:
-        update_user_groups(user, authn_response.ava['http://schemas.xmlsoap.org/claims/Group'])
         logger.error("Group is not existed")
 
     if user is None:
         return logout_and_redirect_to_index()
 
-    if "RedashGroups" in authn_response.ava:
-        group_names = authn_response.ava.get("RedashGroups")
-        user.update_group_assignments(group_names)
+    # if "RedashGroups" in authn_response.ava:
+    #     group_names = authn_response.ava.get("RedashGroups")
+    #     user.update_group_assignments(group_names)
 
     url = url_for("redash.index", org_slug=org_slug)
 
