@@ -110,6 +110,41 @@ class DashboardListResource(BaseResource):
         models.db.session.commit()
         return DashboardSerializer(dashboard).serialize()
 
+class DashboardAllResource(BaseResource):
+      
+    @require_permission("list_dashboards")
+    def get(self):
+        """
+        Lists all accessible dashboards.
+
+        :qparam number page_size: Number of queries to return per page
+        :qparam number page: Page number to retrieve
+        :qparam number order: Name of column to order by
+        :qparam number q: Full text search term
+
+        Responds with an array of :ref:`dashboard <dashboard-response-label>`
+        objects.
+        """
+        print(request.args.get("email"))
+        search_term = request.args.get("q")
+
+        email = request.args.get("email")
+        user = self.current_user
+        if email:
+            try:
+                user = models.User.get_by_email_and_org(email ,self.current_org)
+            except models.NoResultFound:
+                return 'Wrong Email'
+            
+        results = models.Dashboard.all(
+            self.current_org, user.group_ids, user.id
+        )
+
+        ordered_results = order_results(results, fallback=not bool(search_term))
+        ordered_results = ordered_results.all()
+
+        dashboards = DashboardSerializer(ordered_results).serialize()
+        return {"count": len(ordered_results), "items": dashboards}
 
 class MyDashboardsResource(BaseResource):
     @require_permission("list_dashboards")
