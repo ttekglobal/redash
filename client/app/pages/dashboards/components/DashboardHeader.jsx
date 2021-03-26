@@ -209,7 +209,10 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
           {showRefreshButton && <RefreshButton dashboardConfiguration={dashboardConfiguration} />}
           {showFullscreenButton && (
             <Tooltip className="hidden-xs" title="Enable/Disable Fullscreen display">
-              <Button type={buttonType(fullscreen)} className="icon-button m-l-5" onClick={toggleFullscreen}>
+              <Button
+                type={buttonType(fullscreen)}
+                className="fullscreen-btn icon-button m-l-5"
+                onClick={toggleFullscreen}>
                 <i className="zmdi zmdi-fullscreen" />
               </Button>
             </Tooltip>
@@ -218,7 +221,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
           {showShareButton && (
             <Tooltip title="Dashboard Sharing Options">
               <Button
-                className="icon-button m-l-5"
+                className="share-btn icon-button m-l-5"
                 type={buttonType(dashboard.publicAccessEnabled)}
                 onClick={showShareDashboardDialog}
                 data-test="OpenShareForm">

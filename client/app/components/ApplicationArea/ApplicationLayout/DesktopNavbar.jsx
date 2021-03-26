@@ -18,6 +18,7 @@ import SettingOutlinedIcon from "@ant-design/icons/SettingOutlined";
 
 import VersionInfo from "./VersionInfo";
 import "./DesktopNavbar.less";
+import querystring from "query-string";
 
 function NavbarSection({ children, ...props }) {
   return (
@@ -69,6 +70,11 @@ export default function DesktopNavbar() {
   const canCreateQuery = currentUser.hasPermission("create_query");
   const canCreateDashboard = currentUser.hasPermission("create_dashboard");
   const canCreateAlert = currentUser.hasPermission("list_alerts");
+  const params = querystring.parseUrl(window.location.href);
+
+  if ("isView" in params.query) {
+    document.body.classList.add("isView");
+  }
 
   return (
     <nav className="desktop-navbar">
