@@ -212,8 +212,9 @@ export default function initChart(
             if ("isView" in params.query) {
               link = `${link}&isView`;
             }
-            // window.location.href = link;
-            (window as any).open(link, "_blank").focus();
+
+            window.location.href = link;
+            // (window as any).open(link, "_blank").focus();
           }
         });
       })
