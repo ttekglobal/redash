@@ -394,5 +394,5 @@ class UserSyncResource(BaseResource):
         # Read https://docs.microsoft.com/en-us/graph/webhooks#notification-endpoint-validation TODO
         # subscription = client.create_subscription('deleted,updated', 'https://localhost:5000/api/users/sync', 'users', '2022-11-20T18:23:45.9356913Z', client_state='secretClientValue')
         subscription = client.create_subscription('deleted,updated', 'https://rad9.ttekglobal.com/api/users/sync', 'users', '2022-11-20T18:23:45.9356913Z', client_state='secretClientValue')
-sync = UserSyncResource()
-sync.subscribes()
+# sync = UserSyncResource()
+# sync.subscribes()
