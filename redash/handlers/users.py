@@ -8,7 +8,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 from disposable_email_domains import blacklist
 from funcy import partial
-
+from microsoftgraph.client import Client
+import adal
 from redash import models, limiter
 from redash.permissions import (
     require_permission,
@@ -33,6 +34,7 @@ from redash.authentication.account import (
 )
 from redash.settings import parse_boolean
 from redash import settings
+from datetime import datetime, timedelta
 
 
 # Ordering map for relationships
@@ -70,7 +72,6 @@ def require_allowed_email(email):
 
     if domain in blacklist or domain in settings.BLOCKED_DOMAINS:
         abort(400, message="Bad email address.")
-
 
 class UserListResource(BaseResource):
     decorators = BaseResource.decorators + [
@@ -350,3 +351,41 @@ class UserDisableResource(BaseResource):
         models.db.session.commit()
 
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
+
+class UserSyncResource(BaseResource):
+    def get(self):
+        tenant = '5a6a2c46-0665-4d2e-924a-04188a4f373f'
+        client_id = 'b3adf23a-80e2-4d57-834d-e9c371fe6991'
+        client_secret = 'gazR-sq~D~4Mq_arMrTA0-w3-32gk2-0Z_'
+        scope = 'https://graph.microsoft.com/.default'
+        authority = "https://login.microsoftonline.com/" + tenant
+        RESOURCE = "https://graph.microsoft.com"
+
+        context = adal.AuthenticationContext(authority)
+        # Use this for Client Credentials
+        token = context.acquire_token_with_client_credentials(
+           RESOURCE,
+           client_id,
+           client_secret
+        )
+        print(token)
+
+        token['access_token'] = token['accessToken']
+        print('===============================')
+        print(token)
+        client = Client(client_id, client_secret, account_type='common', office365=False)
+        # token = {
+        #     "token_type": "Bearer",
+        #     "expires_in": 3599,
+        #     "ext_expires_in": 3599,
+        #     "access_token": "eyJ0eXAiOiJKV1QiLCJub25jZSI6IkRGVXhYa1JiN196em1RZDhtc2p4MnduWGlVOWFweWZ4cUQ4cEhYVWh5QkkiLCJhbGciOiJSUzI1NiIsIng1dCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyIsImtpZCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyJ9.eyJhdWQiOiJodHRwczovL2dyYXBoLm1pY3Jvc29mdC5jb20iLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81YTZhMmM0Ni0wNjY1LTRkMmUtOTI0YS0wNDE4OGE0ZjM3M2YvIiwiaWF0IjoxNjE2NzQzMDYyLCJuYmYiOjE2MTY3NDMwNjIsImV4cCI6MTYxNjc0Njk2MiwiYWlvIjoiRTJaZ1lOakp5ZGltcXpoN2wwTGhoN25zQ2k2ekFRPT0iLCJhcHBfZGlzcGxheW5hbWUiOiJUVEVLIFBvcnRhbCIsImFwcGlkIjoiYjNhZGYyM2EtODBlMi00ZDU3LTgzNGQtZTljMzcxZmU2OTkxIiwiYXBwaWRhY3IiOiIxIiwiaWRwIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvNWE2YTJjNDYtMDY2NS00ZDJlLTkyNGEtMDQxODhhNGYzNzNmLyIsImlkdHlwIjoiYXBwIiwib2lkIjoiZWM1YTI2NmItNTI3Ny00YzU4LTk5YjUtZDVlZTdkNjA0ODlhIiwicmgiOiIwLkFTMEFSaXhxV21VR0xrMlNTZ1FZaWs4M1B6cnlyYlBpZ0ZkTmcwM3B3M0gtYVpFdEFBQS4iLCJzdWIiOiJlYzVhMjY2Yi01Mjc3LTRjNTgtOTliNS1kNWVlN2Q2MDQ4OWEiLCJ0ZW5hbnRfcmVnaW9uX3Njb3BlIjoiTkEiLCJ0aWQiOiI1YTZhMmM0Ni0wNjY1LTRkMmUtOTI0YS0wNDE4OGE0ZjM3M2YiLCJ1dGkiOiJVR2IzN2g3dGhFNnFHcEplbUJXdkFBIiwidmVyIjoiMS4wIiwieG1zX3RjZHQiOjE1MTUxNTk1NzF9.P5q2FMNTXPW8HKqynjwipB22Hanab3iw4bLA2KQoAZF6fj4A9RNI3IjhQc_A65Hrn0DTV5hkL0ymuO9DPzn7nq7wSkQH31sRXdCuvXRkg2P1jhep-Q_OF_CIayKmoiHjukP82xxt-y8aiSZGI9VWdmLs6MaIQ5z7GZJC_NK4D20Mxl8uzKewtSsMGRVOaaqg-2tPc5cb_KlKW6QNBUtrcM1mgQFnWGS5kKDpoSrcZZ5Fr4_raHbie3g7tqH3NK-hTuknZAtyOas29QKkJkxLZMwF47q48dBI0uz6ZVBWAElnHb_Q3q2Xzumxn51g7zQ3elQWplNx0y9QWouQuvkhnA"
+        # }
+        client.set_token(token)
+        # Read https://docs.microsoft.com/en-us/graph/webhooks#notification-endpoint-validation TODO
+        subscription = client.create_subscription('deleted,updated', 'https://rad9.ttekglobal.com/api/users/sync', 'users', '2022-11-20T18:23:45.9356913Z', client_state='secretClientValue')
+
+    def post(self, user_id):
+        print('Syncing')
+        print(request.get_json)
+sync = UserSyncResource()
+sync.get()
