@@ -35,7 +35,7 @@ from redash.authentication.account import (
 from redash.settings import parse_boolean
 from redash import settings
 from datetime import datetime, timedelta
-
+from redash.utils import json_dumps
 
 # Ordering map for relationships
 order_map = {
@@ -354,10 +354,10 @@ class UserDisableResource(BaseResource):
 
 class UserSyncResource(BaseResource):
     def get(self):
-        # self.subscript()
+        # self.subscribes()
         return 'OK'
 
-    def post(self, user_id):
+    def post(self):
         print('Syncing')
         print(request.get_json)
         arguments = request.get_json(force=True)
@@ -366,7 +366,7 @@ class UserSyncResource(BaseResource):
         headers = {"Content-Type": "text/plain"}
         return make_response(data, 200, headers)
 
-    def subscript(self):
+    def subscribes(self):
         tenant = '5a6a2c46-0665-4d2e-924a-04188a4f373f'
         client_id = 'b3adf23a-80e2-4d57-834d-e9c371fe6991'
         client_secret = 'gazR-sq~D~4Mq_arMrTA0-w3-32gk2-0Z_'
@@ -395,4 +395,4 @@ class UserSyncResource(BaseResource):
         # subscription = client.create_subscription('deleted,updated', 'https://localhost:5000/api/users/sync', 'users', '2022-11-20T18:23:45.9356913Z', client_state='secretClientValue')
         subscription = client.create_subscription('deleted,updated', 'https://rad9.ttekglobal.com/api/users/sync', 'users', '2022-11-20T18:23:45.9356913Z', client_state='secretClientValue')
 sync = UserSyncResource()
-sync.subscript()
+sync.subscribes()
