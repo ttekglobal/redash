@@ -11,6 +11,8 @@ import {
   prepareGroupedLayout,
 } from "../plotly";
 
+import querystring from "query-string";
+
 function isGrouped(columnMapping: any) {
   return Object.values(columnMapping).indexOf("group") > -1 ? true : false;
 }
@@ -206,8 +208,13 @@ export default function initChart(
               link = `${link}&${q}`;
             }
 
-            // window.location.href = link;
-            (window as any).open(link, "_blank").focus();
+            const params = querystring.parseUrl(window.location.href);
+            if ("isView" in params.query) {
+              link = `${link}&isView`;
+            }
+
+            window.location.href = link;
+            // (window as any).open(link, "_blank").focus();
           }
         });
       })

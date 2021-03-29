@@ -16,7 +16,7 @@ import { StateStorage } from "@/components/items-list/classes/StateStorage";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 import SelectItemsDialog from "@/components/SelectItemsDialog";
-import { DataSourcePreviewCard } from "@/components/PreviewCard";
+import { DashboardPreviewCard } from "@/components/PreviewCard";
 
 import GroupName from "@/components/groups/GroupName";
 import ListItemAddon from "@/components/groups/ListItemAddon";
@@ -61,7 +61,7 @@ class GroupDashboard extends React.Component {
   ];
 
   listColumns = [
-    Columns.custom((text, dashboard) => <DataSourcePreviewCard dataSource={dashboard} withLink />, {
+    Columns.custom((text, dashboard) => <DashboardPreviewCard dashboard={dashboard} withLink />, {
       title: "Name",
       field: "name",
       width: null,
@@ -165,9 +165,9 @@ class GroupDashboard extends React.Component {
         const alreadyInGroup = includes(alreadyAddedDashboard, item.id);
         return {
           content: (
-            <DataSourcePreviewCard dataSource={item}>
+            <DashboardPreviewCard dashboard={item}>
               <ListItemAddon isSelected={isSelected} alreadyInGroup={alreadyInGroup} />
-            </DataSourcePreviewCard>
+            </DashboardPreviewCard>
           ),
           isDisabled: alreadyInGroup,
           className: isSelected || alreadyInGroup ? "selected" : "",
@@ -175,9 +175,9 @@ class GroupDashboard extends React.Component {
       },
       renderStagedItem: (item, { isSelected }) => ({
         content: (
-          <DataSourcePreviewCard dataSource={item}>
+          <DashboardPreviewCard dashboard={item}>
             <ListItemAddon isSelected={isSelected} isStaged />
-          </DataSourcePreviewCard>
+          </DashboardPreviewCard>
         ),
       }),
     }).onClose(items => {

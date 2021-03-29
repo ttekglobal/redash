@@ -1117,7 +1117,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             "id": self.id,
             "name": self.name,
             "tags": self.tags,
-            "type": 'google_analytics'
+            "type": 'google_analytics',
+            "slug": utils.slugify(self.name)
         }
 
         if all:

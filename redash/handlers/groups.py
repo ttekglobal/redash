@@ -6,6 +6,7 @@ from redash.permissions import require_admin, require_permission
 from redash.handlers.base import BaseResource, get_object_or_404
 import logging
 
+
 class GroupListResource(BaseResource):
     @require_admin
     def post(self):
@@ -135,10 +136,12 @@ def serialize_data_source_with_group(data_source, data_source_group):
     d["view_only"] = data_source_group.view_only
     return d
 
+
 def serialize_dashboard_with_group(dashboard, dashboard_group):
     d = dashboard.to_dict()
     d["view_only"] = dashboard_group.view_only
     return d
+
 
 class GroupDataSourceListResource(BaseResource):
     @require_admin
