@@ -354,6 +354,14 @@ class UserDisableResource(BaseResource):
 
 class UserSyncResource(BaseResource):
     def get(self):
+        return 
+
+    def post(self, user_id):
+        print('Syncing')
+        print(request.get_json)
+        return 'OK'
+
+    def subscript(self):
         tenant = '5a6a2c46-0665-4d2e-924a-04188a4f373f'
         client_id = 'b3adf23a-80e2-4d57-834d-e9c371fe6991'
         client_secret = 'gazR-sq~D~4Mq_arMrTA0-w3-32gk2-0Z_'
@@ -368,11 +376,8 @@ class UserSyncResource(BaseResource):
            client_id,
            client_secret
         )
-        print(token)
 
         token['access_token'] = token['accessToken']
-        print('===============================')
-        print(token)
         client = Client(client_id, client_secret, account_type='common', office365=False)
         # token = {
         #     "token_type": "Bearer",
@@ -384,8 +389,5 @@ class UserSyncResource(BaseResource):
         # Read https://docs.microsoft.com/en-us/graph/webhooks#notification-endpoint-validation TODO
         subscription = client.create_subscription('deleted,updated', 'https://rad9.ttekglobal.com/api/users/sync', 'users', '2022-11-20T18:23:45.9356913Z', client_state='secretClientValue')
 
-    def post(self, user_id):
-        print('Syncing')
-        print(request.get_json)
 sync = UserSyncResource()
-sync.get()
+sync.subscript()
