@@ -362,7 +362,9 @@ class UserSyncResource(BaseResource):
         print(request.get_json)
         arguments = request.get_json(force=True)
         token = arguments.get("validationToken", "")
-        return {"status": 200, "content_type":'text/plain', "body":token}
+        data = json_dumps({"validationToken": token})
+        headers = {"Content-Type": "text/plain"}
+        return make_response(data, 200, headers)
 
     def subscript(self):
         tenant = '5a6a2c46-0665-4d2e-924a-04188a4f373f'
