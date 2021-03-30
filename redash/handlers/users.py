@@ -35,7 +35,7 @@ from redash.authentication.account import (
 )
 from redash.settings import parse_boolean
 from redash import settings
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from redash.utils import json_dumps
 
 
@@ -394,8 +394,7 @@ class UserSyncResource(BaseResource):
         # }
         client.set_token(token)
         # Read https://docs.microsoft.com/en-us/graph/webhooks#notification-endpoint-validation TODO
-        # expiredTime = datetime.now() + timedelta(hours = 25)
-        expiredTime = '2021-04-01T18:23:45.9356913Z'
-        subscription = client.create_subscription('deleted,updated', 'https://rad9.ttekglobal.com/subscriptioncallback', 'users', expiredTime , client_state='secretClientValue')
-sync = UserSyncResource()
-sync.subscribes()
+        expiredTime = datetime.now() + timedelta(hours = 48)
+        subscription = client.create_subscription('deleted,updated', 'https://rad9.ttekglobal.com/subscriptioncallback', 'users', expiredTime.isoformat() + 'Z' , client_state='secretClientValue')
+# sync = UserSyncResource()
+# sync.subscribes()
