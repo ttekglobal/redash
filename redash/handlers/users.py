@@ -364,7 +364,7 @@ class UserSyncResource(BaseResource):
         token = arguments.get("validationToken", "")
         data = json_dumps({"validationToken": token})
         headers = {"Content-Type": "text/plain"}
-        return make_response(data, 200, headers)
+        return make_response(token, 200, headers)
 
     def subscribes(self):
         tenant = '5a6a2c46-0665-4d2e-924a-04188a4f373f'
@@ -392,7 +392,6 @@ class UserSyncResource(BaseResource):
         # }
         client.set_token(token)
         # Read https://docs.microsoft.com/en-us/graph/webhooks#notification-endpoint-validation TODO
-        # subscription = client.create_subscription('deleted,updated', 'https://localhost:5000/api/users/sync', 'users', '2022-11-20T18:23:45.9356913Z', client_state='secretClientValue')
         subscription = client.create_subscription('deleted,updated', 'https://rad9.ttekglobal.com/api/users/sync', 'users', '2022-11-20T18:23:45.9356913Z', client_state='secretClientValue')
 # sync = UserSyncResource()
 # sync.subscribes()
