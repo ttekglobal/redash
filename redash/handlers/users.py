@@ -354,7 +354,7 @@ class UserDisableResource(BaseResource):
 
 class UserSyncResource(BaseResource):
     def get(self):
-        # self.subscribes()
+        self.subscribes()
         return 'OK'
 
     def post(self):
