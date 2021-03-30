@@ -31,6 +31,7 @@ def init_app(app):
         admin,
         setup,
         organization,
+        ms_subscription
     )
 
     app.register_blueprint(routes)

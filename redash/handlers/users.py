@@ -18,6 +18,7 @@ from redash.permissions import (
     require_permission_or_owner,
     require_admin,
 )
+
 from redash.handlers.base import (
     BaseResource,
     require_fields,
@@ -36,6 +37,7 @@ from redash.settings import parse_boolean
 from redash import settings
 from datetime import datetime, timedelta
 from redash.utils import json_dumps
+
 
 # Ordering map for relationships
 order_map = {
@@ -392,6 +394,6 @@ class UserSyncResource(BaseResource):
         # }
         client.set_token(token)
         # Read https://docs.microsoft.com/en-us/graph/webhooks#notification-endpoint-validation TODO
-        subscription = client.create_subscription('deleted,updated', 'https://rad9.ttekglobal.com/api/users/sync', 'users', '2022-11-20T18:23:45.9356913Z', client_state='secretClientValue')
+        subscription = client.create_subscription('deleted,updated', 'https://rad9.ttekglobal.com/subscriptioncallback', 'users', '2022-11-20T18:23:45.9356913Z', client_state='secretClientValue')
 # sync = UserSyncResource()
 # sync.subscribes()
