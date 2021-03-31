@@ -293,8 +293,9 @@ api.add_org_resource(
     endpoint="job",
 )
 
-api.add_org_resource(UserSyncResource, "/api/users/sync", endpoint="users")
+api.add_org_resource(UserSyncResource, "/api/users/sync", endpoint="usersSync")
 api.add_org_resource(UserResource, "/api/users/<user_id>", endpoint="user")
+api.add_org_resource(UserListResource, "/api/users", endpoint="users")
 api.add_org_resource(
     UserInviteResource, "/api/users/<user_id>/invite", endpoint="user_invite"
 )

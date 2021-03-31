@@ -375,7 +375,6 @@ class UserSyncResource(BaseResource):
         scope = 'https://graph.microsoft.com/.default'
         authority = "https://login.microsoftonline.com/" + tenant
         RESOURCE = "https://graph.microsoft.com"
-
         context = adal.AuthenticationContext(authority)
         # Use this for Client Credentials
         token = context.acquire_token_with_client_credentials(
@@ -383,18 +382,21 @@ class UserSyncResource(BaseResource):
            client_id,
            client_secret
         )
+        # code = '0.AS0ARixqWmUGLk2SSgQYik83PzryrbPigFdNg03pw3H-aZEtAP0.AQABAAIAAAD--DLA3VO7QrddgJg7Wevr1zWcO0LQyq4kuVADDAMJi-fVdzk7wjjsF-7iBBDQwuqQE1P0X4uHkJVTWkQI2QiE-_aK6moAARnh4Hqjpb2Fr1Aj9TeYehRkuLiIaAZrzB2sQ8a4wEOPe-1OR9wKzyaCI1OqardGbDOTjkOMbFT4IQTUoTSjo-TNPALbUNuD3x98d0IUIbL4fwW5K01Xo5xHk2eSr632Lr1-rg4bgh_u0dbkgykSJ4rBt5dKeMDry-FGFFHrH8TEHx67RsFLYqn6L7hsEkg-9FPNsmUcZ5Y0dUEwe38Vbsb3QPrW4gOe06GB98AQ0f7JK4saNKd0NRD3efC6LqP0NKiT7y7mR8ypVxbDGLuauWOutbx4SKk7KMty8dWDcogIFGCIwEOaEhJYvxo6_6r2HY4aKZWaRYJGbmVYRBH74D9Al4yhV-1_cnAykX6l3xkP4jMsXBIlXhWbZgHD0mYm2ScV4QGoGiDdmVlaT03wU_142uCHatDULfTdA6dx6OsJ605NfMdHxqq2VjxVNMnpbW_4qTRFfl-18Vbjgb-7Up-hBUqxakLUmfQ_XhHXGfvZVuB5hhH6I1JJaMy9EumYhIlJOhu96kzscudS0FAavVegNifbyzniR5yEBHLHMKX71QtY6baK_T3Ve5taF1H2phbnsFBrdlrjbCAA'
+        # token = context.acquire_token_with_authorization_code(code, redirect_uri, RESOURCE, client_id, client_secret)
 
+        client = Client(client_id, client_secret, account_type='by defect common', office365=False)
+        # refresh_token = client.exchange_code(redirect_uri, code)
+        # token = client.refresh_token(redirect_uri, refresh_token)
         token['access_token'] = token['accessToken']
-        client = Client(client_id, client_secret, account_type='common', office365=False)
-        # token = {
-        #     "token_type": "Bearer",
-        #     "expires_in": 3599,
-        #     "ext_expires_in": 3599,
-        #     "access_token": "eyJ0eXAiOiJKV1QiLCJub25jZSI6IkRGVXhYa1JiN196em1RZDhtc2p4MnduWGlVOWFweWZ4cUQ4cEhYVWh5QkkiLCJhbGciOiJSUzI1NiIsIng1dCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyIsImtpZCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyJ9.eyJhdWQiOiJodHRwczovL2dyYXBoLm1pY3Jvc29mdC5jb20iLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81YTZhMmM0Ni0wNjY1LTRkMmUtOTI0YS0wNDE4OGE0ZjM3M2YvIiwiaWF0IjoxNjE2NzQzMDYyLCJuYmYiOjE2MTY3NDMwNjIsImV4cCI6MTYxNjc0Njk2MiwiYWlvIjoiRTJaZ1lOakp5ZGltcXpoN2wwTGhoN25zQ2k2ekFRPT0iLCJhcHBfZGlzcGxheW5hbWUiOiJUVEVLIFBvcnRhbCIsImFwcGlkIjoiYjNhZGYyM2EtODBlMi00ZDU3LTgzNGQtZTljMzcxZmU2OTkxIiwiYXBwaWRhY3IiOiIxIiwiaWRwIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvNWE2YTJjNDYtMDY2NS00ZDJlLTkyNGEtMDQxODhhNGYzNzNmLyIsImlkdHlwIjoiYXBwIiwib2lkIjoiZWM1YTI2NmItNTI3Ny00YzU4LTk5YjUtZDVlZTdkNjA0ODlhIiwicmgiOiIwLkFTMEFSaXhxV21VR0xrMlNTZ1FZaWs4M1B6cnlyYlBpZ0ZkTmcwM3B3M0gtYVpFdEFBQS4iLCJzdWIiOiJlYzVhMjY2Yi01Mjc3LTRjNTgtOTliNS1kNWVlN2Q2MDQ4OWEiLCJ0ZW5hbnRfcmVnaW9uX3Njb3BlIjoiTkEiLCJ0aWQiOiI1YTZhMmM0Ni0wNjY1LTRkMmUtOTI0YS0wNDE4OGE0ZjM3M2YiLCJ1dGkiOiJVR2IzN2g3dGhFNnFHcEplbUJXdkFBIiwidmVyIjoiMS4wIiwieG1zX3RjZHQiOjE1MTUxNTk1NzF9.P5q2FMNTXPW8HKqynjwipB22Hanab3iw4bLA2KQoAZF6fj4A9RNI3IjhQc_A65Hrn0DTV5hkL0ymuO9DPzn7nq7wSkQH31sRXdCuvXRkg2P1jhep-Q_OF_CIayKmoiHjukP82xxt-y8aiSZGI9VWdmLs6MaIQ5z7GZJC_NK4D20Mxl8uzKewtSsMGRVOaaqg-2tPc5cb_KlKW6QNBUtrcM1mgQFnWGS5kKDpoSrcZZ5Fr4_raHbie3g7tqH3NK-hTuknZAtyOas29QKkJkxLZMwF47q48dBI0uz6ZVBWAElnHb_Q3q2Xzumxn51g7zQ3elQWplNx0y9QWouQuvkhnA"
-        # }
+        token['token_type'] = token['tokenType']
+        token['expires_in'] = 3599
+        token['ext_expires_in'] = 3599
+        
         client.set_token(token)
         # Read https://docs.microsoft.com/en-us/graph/webhooks#notification-endpoint-validation TODO
         expiredTime = datetime.now() + timedelta(hours = 48)
-        subscription = client.create_subscription('deleted,updated', 'https://rad9.ttekglobal.com/subscriptioncallback', 'users', expiredTime.isoformat() + 'Z' , client_state='secretClientValue')
+        # expiredTime = '2021-04-01T18:23:45.9356913Z'
+        subscription = client.create_subscription('deleted,updated', 'https://rad9.ttekglobal.com/subscriptioncallback', 'users', expiredTime.isoformat() + 'Z' , client_state=None)
 # sync = UserSyncResource()
 # sync.subscribes()
