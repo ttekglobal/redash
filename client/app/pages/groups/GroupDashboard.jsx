@@ -141,7 +141,7 @@ class GroupDashboard extends React.Component {
   };
 
   addDashboard = () => {
-    const allDashboard = Dashboard.query();
+    // const allDashboard = Dashboard.query({ page_size: 10 });
     const alreadyAddedDashboard = map(this.props.controller.allItems, ds => ds.id);
     SelectItemsDialog.showModal({
       dialogTitle: "Add Dashboard",
@@ -149,7 +149,7 @@ class GroupDashboard extends React.Component {
       selectedItemsTitle: "New Dashboard",
       searchItems: searchTerm => {
         searchTerm = toLower(searchTerm);
-        return allDashboard.then(items => {
+        return Dashboard.query({ page_size: 15, q: searchTerm }).then(items => {
           let list = items.results;
           list = list.map(item => ({
             id: item.id,
