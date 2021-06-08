@@ -149,7 +149,7 @@ class GroupDashboard extends React.Component {
       selectedItemsTitle: "New Dashboard",
       searchItems: searchTerm => {
         searchTerm = toLower(searchTerm);
-        return Dashboard.query({ page_size: 15, q: searchTerm }).then(items => {
+        return Dashboard.query({ page_size: searchTerm ? 100 : 10, q: searchTerm, order: 'created_at' }).then(items => {
           let list = items.results;
           list = list.map(item => ({
             id: item.id,
