@@ -102,7 +102,7 @@ redash:
   # redash.cookieSecret -- REQUIRED `REDASH_COOKIE_SECRET` value. Defaults to ``. Stored as a Secret value.
   cookieSecret: Nvj7vQZhsbsMnWXAhIzzL8I28Mi6lpQ5
   # redash.logLevel -- `REDASH_LOG_LEVEL` value. Defaults to `INFO`.
-  logLevel:
+  logLevel: DEBUG
   # redash.mailServer -- `REDASH_MAIL_SERVER` value. Defaults to `localhost`.
   mailServer:
   # redash.mailPort -- `REDASH_MAIL_PORT` value. Defaults to `25`.
@@ -441,7 +441,7 @@ postgresql:
     # existingClaim: ""
 
 externalRedis -- External Redis configuration. To use an external Redis instead of the automatically deployed redis chart: set redis.enabled to false then uncomment and configure the externalRedis connection URL.
-externalRedis: redis://redis-master.ra.svc.cluster.local:6379/database
+externalRedis: redis://redis-master.rpd9.svc.cluster.local:6379/database
 
 # Configuration values for the redis dependency. This Redis instance is used by default for caching and temporary storage [ref](https://github.com/kubernetes/charts/blob/master/stable/redis/README.md)
 redis:
